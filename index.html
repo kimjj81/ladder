@@ -21,29 +21,59 @@
 </head>
 
 <body>
-    <!-- Menu Backdrop -->
-    <div class="menu-backdrop" id="menuBackdrop"></div>
+    <header class="header">
+        <div class="header-container">
+            <div class="header-brand">
+                <h1 class="brand-title">🎯 사다리타기</h1>
+                <span class="brand-subtitle">랜덤 선택 게임</span>
+            </div>
+            
+            <nav class="header-nav">
+                <ul class="nav-list">
+                    <li><a href="#ladder-game" class="nav-item active" data-section="ladder-game">
+                        <span class="nav-icon">🎲</span>
+                        <span class="nav-text">게임하기</span>
+                    </a></li>
+                    <li><a href="#saved-games" class="nav-item" data-section="saved-games">
+                        <span class="nav-icon">💾</span>
+                        <span class="nav-text">저장된 게임</span>
+                    </a></li>
+                    <li><a href="#about" class="nav-item" data-section="about">
+                        <span class="nav-icon">ℹ️</span>
+                        <span class="nav-text">게임 설명</span>
+                    </a></li>
+                </ul>
+            </nav>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div class="mobile-menu" id="mobileMenu">
+            <ul class="mobile-nav-list">
+                <li><a href="#ladder-game" class="mobile-nav-item active" data-section="ladder-game">
+                    <span class="nav-icon">🎲</span>
+                    <span class="nav-text">게임하기</span>
+                </a></li>
+                <li><a href="#saved-games" class="mobile-nav-item" data-section="saved-games">
+                    <span class="nav-icon">💾</span>
+                    <span class="nav-text">저장된 게임</span>
+                </a></li>
+                <li><a href="#about" class="mobile-nav-item" data-section="about">
+                    <span class="nav-icon">ℹ️</span>
+                    <span class="nav-text">게임 설명</span>
+                </a></li>
+            </ul>
+        </div>
+    </header>
 
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Left Sidebar Menu -->
-        <nav class="sidebar" id="sidebar">
-            <ul class="menu-list">
-                <li><a href="#ladder-game" class="menu-item active">사다리타기</a></li>
-                <li><a href="#saved-games" class="menu-item">저장된 게임</a></li>
-                <li><a href="#about" class="menu-item">게임 설명</a></li>
-            </ul>
-            <!-- Sidebar Ad (Desktop only) -->
-            <div id="sidebar-ad" class="ad-container desktop-only">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-1535530089295655"
-                     data-ad-slot="0987654321"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-            </div>
-        </nav>
-
         <!-- Main Content Area -->
         <main class="content" id="mainContent">
             <!-- Ladder Game Section -->
