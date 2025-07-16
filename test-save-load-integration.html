@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save/Load Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        button { margin: 5px; padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; font-family: monospace; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Save/Load Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Save Functionality</h2>
+        <button onclick="testSaveGame()">Test Save Game</button>
+        <div id="saveResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Load Functionality</h2>
+        <button onclick="testLoadGame()">Test Load Game</button>
+        <div id="loadResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Randomize Functionality</h2>
+        <button onclick="testRandomize()">Test Randomize</button>
+        <div id="randomizeResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Saved Games Manager</h2>
+        <button onclick="testSavedGamesManager()">Test Saved Games Manager</button>
+        <div id="managerResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Clean Up</h2>
+        <button onclick="cleanUp()">Clear Test Data</button>
+        <div id="cleanupResult" class="result"></div>
+    </div>
+
+    <!-- Include all necessary scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/ladder-game.js"></script>
+    <script src="js/saved-games-manager.js"></script>
+    
+    <script>
+        let testGameId = null;
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        function testSaveGame() {
+            const resultId = 'saveResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Initialize ladder game if not already done
+                if (!window.ladderGame) {
+                    window.ladderGame = new LadderGame();
+                }
+
+                // Set up a test game configuration
+                window.ladderGame.slotCount = 4;
+                window.ladderGame.topSlots = ['Alice', 'Bob', 'Charlie', 'Diana'];
+                window.ladderGame.bottomSlots = ['Prize A', 'Prize B', 'Prize C', 'Prize D'];
+                window.ladderGame.gameState = 'ready';
+
+                log(resultId, '✅ Test game configuration set up', 'success');
+
+                // Test save functionality
+                testGameId = window.ladderGame.saveConfiguration('Integration Test Game');
+                log(resultId, `✅ Game saved with ID: ${testGameId}`, 'success');
+
+                // Verify the game was saved
+                const savedGames = window.ladderGame.storageManager.getAllSavedGames();
+                const savedGame = savedGames.find(game => game.id === testGameId);
+                
+                if (savedGame) {
+                    log(resultId, `✅ Game found in storage: ${savedGame.name}`, 'success');
+                    log(resultId, `✅ Slot count: ${savedGame.slotCount}`, 'success');
+                    log(resultId, `✅ Top slots: ${savedGame.topSlots.join(', ')}`, 'success');
+                    log(resultId, `✅ Bottom slots: ${savedGame.bottomSlots.join(', ')}`, 'success');
+                } else {
+                    log(resultId, '❌ Game not found in storage', 'error');
+                }
+
+            } catch (error) {
+                log(resultId, `❌ Save test failed: ${error.message}`, 'error');
+                console.error('Save test error:', error);
+            }
+        }
+
+        function testLoadGame() {
+            const resultId = 'loadResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            if (!testGameId) {
+                log(resultId, '❌ No test game ID available. Run save test first.', 'error');
+                return;
+            }
+
+            try {
+                // Clear current game state
+                window.ladderGame.slotCount = 0;
+                window.ladderGame.topSlots = [];
+                window.ladderGame.bottomSlots = [];
+                window.ladderGame.gameState = 'setup';
+
+                log(resultId, '✅ Game state cleared', 'success');
+
+                // Test load functionality
+                const loadedGame = window.ladderGame.loadGameConfiguration(testGameId);
+                
+                log(resultId, `✅ Game loaded: ${loadedGame.name}`, 'success');
+                log(resultId, `✅ Loaded slot count: ${window.ladderGame.slotCount}`, 'success');
+                log(resultId, `✅ Loaded top slots: ${window.ladderGame.topSlots.join(', ')}`, 'success');
+                log(resultId, `✅ Loaded bottom slots: ${window.ladderGame.bottomSlots.join(', ')}`, 'success');
+                log(resultId, `✅ Game state: ${window.ladderGame.gameState}`, 'success');
+
+                // Verify data integrity
+                const expectedTopSlots = ['Alice', 'Bob', 'Charlie', 'Diana'];
+                const expectedBottomSlots = ['Prize A', 'Prize B', 'Prize C', 'Prize D'];
+                
+                const topSlotsMatch = JSON.stringify(window.ladderGame.topSlots) === JSON.stringify(expectedTopSlots);
+                const bottomSlotsMatch = JSON.stringify(window.ladderGame.bottomSlots) === JSON.stringify(expectedBottomSlots);
+                const slotCountMatch = window.ladderGame.slotCount === 4;
+
+                log(resultId, `✅ Data integrity - Top slots: ${topSlotsMatch ? 'PASS' : 'FAIL'}`, topSlotsMatch ? 'success' : 'error');
+                log(resultId, `✅ Data integrity - Bottom slots: ${bottomSlotsMatch ? 'PASS' : 'FAIL'}`, bottomSlotsMatch ? 'success' : 'error');
+                log(resultId, `✅ Data integrity - Slot count: ${slotCountMatch ? 'PASS' : 'FAIL'}`, slotCountMatch ? 'success' : 'error');
+
+            } catch (error) {
+                log(resultId, `❌ Load test failed: ${error.message}`, 'error');
+                console.error('Load test error:', error);
+            }
+        }
+
+        function testRandomize() {
+            const resultId = 'randomizeResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Ensure we have a loaded game
+                if (window.ladderGame.gameState !== 'ready' && window.ladderGame.gameState !== 'complete') {
+                    log(resultId, '❌ Game not in ready state. Load a game first.', 'error');
+                    return;
+                }
+
+                log(resultId, `✅ Game state before randomize: ${window.ladderGame.gameState}`, 'success');
+
+                // Test randomize functionality
+                window.ladderGame.randomizeWithSameSlots();
+                
+                log(resultId, `✅ Randomize completed`, 'success');
+                log(resultId, `✅ Game state after randomize: ${window.ladderGame.gameState}`, 'success');
+                
+                // Verify slots remain the same
+                const expectedTopSlots = ['Alice', 'Bob', 'Charlie', 'Diana'];
+                const expectedBottomSlots = ['Prize A', 'Prize B', 'Prize C', 'Prize D'];
+                
+                const topSlotsMatch = JSON.stringify(window.ladderGame.topSlots) === JSON.stringify(expectedTopSlots);
+                const bottomSlotsMatch = JSON.stringify(window.ladderGame.bottomSlots) === JSON.stringify(expectedBottomSlots);
+
+                log(resultId, `✅ Slots preserved - Top: ${topSlotsMatch ? 'PASS' : 'FAIL'}`, topSlotsMatch ? 'success' : 'error');
+                log(resultId, `✅ Slots preserved - Bottom: ${bottomSlotsMatch ? 'PASS' : 'FAIL'}`, bottomSlotsMatch ? 'success' : 'error');
+
+            } catch (error) {
+                log(resultId, `❌ Randomize test failed: ${error.message}`, 'error');
+                console.error('Randomize test error:', error);
+            }
+        }
+
+        function testSavedGamesManager() {
+            const resultId = 'managerResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Initialize saved games manager if not already done
+                if (!window.savedGamesManager) {
+                    window.savedGamesManager = new SavedGamesManager();
+                }
+
+                log(resultId, '✅ SavedGamesManager initialized', 'success');
+
+                // Test getting all saved games
+                const savedGames = window.savedGamesManager.storageManager.getAllSavedGames();
+                log(resultId, `✅ Found ${savedGames.length} saved games`, 'success');
+
+                // Test storage stats
+                const stats = window.savedGamesManager.storageManager.getStorageStats();
+                log(resultId, `✅ Storage stats - Games: ${stats.gamesCount}, Usage: ${stats.usagePercent}%`, 'success');
+
+                // Test if our test game is in the list
+                if (testGameId) {
+                    const testGame = savedGames.find(game => game.id === testGameId);
+                    if (testGame) {
+                        log(resultId, `✅ Test game found in manager: ${testGame.name}`, 'success');
+                    } else {
+                        log(resultId, '❌ Test game not found in manager', 'error');
+                    }
+                }
+
+            } catch (error) {
+                log(resultId, `❌ SavedGamesManager test failed: ${error.message}`, 'error');
+                console.error('SavedGamesManager test error:', error);
+            }
+        }
+
+        function cleanUp() {
+            const resultId = 'cleanupResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Delete the test game if it exists
+                if (testGameId && window.ladderGame && window.ladderGame.storageManager) {
+                    window.ladderGame.storageManager.deleteGame(testGameId);
+                    log(resultId, `✅ Test game deleted: ${testGameId}`, 'success');
+                }
+
+                // Reset test game ID
+                testGameId = null;
+                
+                // Reset ladder game state
+                if (window.ladderGame) {
+                    window.ladderGame.slotCount = 0;
+                    window.ladderGame.topSlots = [];
+                    window.ladderGame.bottomSlots = [];
+                    window.ladderGame.gameState = 'setup';
+                }
+
+                log(resultId, '✅ Cleanup completed', 'success');
+
+            } catch (error) {
+                log(resultId, `❌ Cleanup failed: ${error.message}`, 'error');
+                console.error('Cleanup error:', error);
+            }
+        }
+
+        // Auto-initialize on load
+        window.onload = function() {
+            console.log('Save/Load Integration Test loaded');
+        };
+    </script>
+</body>
+</html>

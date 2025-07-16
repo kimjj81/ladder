@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Save/Load Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        button { margin: 5px; padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; font-family: monospace; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Complete Save/Load Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Storage Manager Basic Tests</h2>
+        <button onclick="runBasicTests()">Run Basic Tests</button>
+        <div id="basicResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Game Save/Load Tests</h2>
+        <button onclick="runSaveLoadTests()">Run Save/Load Tests</button>
+        <div id="saveLoadResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Multiple Games Test</h2>
+        <button onclick="runMultipleGamesTest()">Run Multiple Games Test</button>
+        <div id="multipleResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Storage Stats Test</h2>
+        <button onclick="runStorageStatsTest()">Run Storage Stats Test</button>
+        <div id="statsResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Error Handling Test</h2>
+        <button onclick="runErrorHandlingTest()">Run Error Handling Test</button>
+        <div id="errorResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>6. Clean Up</h2>
+        <button onclick="cleanUp()">Clear All Test Data</button>
+        <div id="cleanupResult" class="result"></div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script>
+        let storageManager;
+        let testGameIds = [];
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        function runBasicTests() {
+            const resultId = 'basicResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Test 1: Initialize StorageManager
+                storageManager = new StorageManager();
+                log(resultId, '✅ StorageManager initialized successfully', 'success');
+                
+                // Test 2: Check localStorage availability
+                const isAvailable = storageManager.isStorageAvailable();
+                log(resultId, `✅ localStorage available: ${isAvailable}`, 'success');
+                
+                // Test 3: Check initial storage structure
+                const initialData = storageManager.getStorageData();
+                log(resultId, `✅ Initial storage structure: ${initialData ? 'Valid' : 'Created'}`, 'success');
+                
+            } catch (error) {
+                log(resultId, `❌ Basic test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function runSaveLoadTests() {
+            const resultId = 'saveLoadResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            if (!storageManager) {
+                log(resultId, '❌ StorageManager not initialized. Run basic tests first.', 'error');
+                return;
+            }
+
+            try {
+                // Test 1: Save a game
+                const testGame = {
+                    slotCount: 4,
+                    topSlots: ['Alice', 'Bob', 'Charlie', 'Diana'],
+                    bottomSlots: ['Prize A', 'Prize B', 'Prize C', 'Prize D']
+                };
+                
+                const gameId = storageManager.saveGame(testGame, 'Test Game 1');
+                testGameIds.push(gameId);
+                log(resultId, `✅ Game saved with ID: ${gameId}`, 'success');
+                
+                // Test 2: Load the game
+                const loadedGame = storageManager.loadGame(gameId);
+                log(resultId, `✅ Game loaded: ${loadedGame.name}`, 'success');
+                
+                // Test 3: Verify data integrity
+                const dataMatch = JSON.stringify(testGame.topSlots) === JSON.stringify(loadedGame.topSlots) &&
+                                JSON.stringify(testGame.bottomSlots) === JSON.stringify(loadedGame.bottomSlots) &&
+                                testGame.slotCount === loadedGame.slotCount;
+                
+                log(resultId, `✅ Data integrity check: ${dataMatch ? 'PASSED' : 'FAILED'}`, dataMatch ? 'success' : 'error');
+                
+                // Test 4: Update game name
+                storageManager.updateGameName(gameId, 'Updated Test Game');
+                const updatedGame = storageManager.loadGame(gameId);
+                log(resultId, `✅ Game name updated: ${updatedGame.name}`, 'success');
+                
+            } catch (error) {
+                log(resultId, `❌ Save/Load test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function runMultipleGamesTest() {
+            const resultId = 'multipleResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            if (!storageManager) {
+                log(resultId, '❌ StorageManager not initialized. Run basic tests first.', 'error');
+                return;
+            }
+
+            try {
+                // Create multiple test games
+                const games = [
+                    {
+                        data: { slotCount: 3, topSlots: ['A', 'B', 'C'], bottomSlots: ['1', '2', '3'] },
+                        name: 'Small Game'
+                    },
+                    {
+                        data: { slotCount: 6, topSlots: ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'], bottomSlots: ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'] },
+                        name: 'Large Game'
+                    },
+                    {
+                        data: { slotCount: 2, topSlots: ['Yes', 'No'], bottomSlots: ['True', 'False'] },
+                        name: 'Binary Choice'
+                    }
+                ];
+
+                games.forEach((game, index) => {
+                    const gameId = storageManager.saveGame(game.data, game.name);
+                    testGameIds.push(gameId);
+                    log(resultId, `✅ Game ${index + 1} saved: ${game.name}`, 'success');
+                });
+
+                // Test getting all games
+                const allGames = storageManager.getAllSavedGames();
+                log(resultId, `✅ Total games retrieved: ${allGames.length}`, 'success');
+                
+                // Verify all games are present
+                games.forEach(game => {
+                    const found = allGames.find(g => g.name === game.name);
+                    log(resultId, `✅ Found game: ${game.name} - ${found ? 'YES' : 'NO'}`, found ? 'success' : 'error');
+                });
+
+            } catch (error) {
+                log(resultId, `❌ Multiple games test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function runStorageStatsTest() {
+            const resultId = 'statsResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            if (!storageManager) {
+                log(resultId, '❌ StorageManager not initialized. Run basic tests first.', 'error');
+                return;
+            }
+
+            try {
+                const stats = storageManager.getStorageStats();
+                log(resultId, `✅ Games count: ${stats.gamesCount}`, 'success');
+                log(resultId, `✅ Storage used: ${stats.storageUsed} bytes`, 'success');
+                log(resultId, `✅ Storage usage: ${stats.usagePercent}%`, 'success');
+                log(resultId, `✅ Storage limit: ${stats.storageLimit} bytes`, 'success');
+
+                // Test export
+                const exportData = storageManager.exportData();
+                log(resultId, `✅ Export data contains ${Object.keys(exportData.games || {}).length} games`, 'success');
+
+            } catch (error) {
+                log(resultId, `❌ Storage stats test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function runErrorHandlingTest() {
+            const resultId = 'errorResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            if (!storageManager) {
+                log(resultId, '❌ StorageManager not initialized. Run basic tests first.', 'error');
+                return;
+            }
+
+            try {
+                // Test 1: Load non-existent game
+                try {
+                    storageManager.loadGame('non-existent-id');
+                    log(resultId, '❌ Should have thrown error for non-existent game', 'error');
+                } catch (error) {
+                    log(resultId, '✅ Correctly handled non-existent game error', 'success');
+                }
+
+                // Test 2: Delete non-existent game
+                try {
+                    storageManager.deleteGame('non-existent-id');
+                    log(resultId, '❌ Should have thrown error for non-existent game deletion', 'error');
+                } catch (error) {
+                    log(resultId, '✅ Correctly handled non-existent game deletion error', 'success');
+                }
+
+                // Test 3: Save invalid game data
+                try {
+                    storageManager.saveGame({}, 'Invalid Game');
+                    log(resultId, '❌ Should have thrown error for invalid game data', 'error');
+                } catch (error) {
+                    log(resultId, '✅ Correctly handled invalid game data error', 'success');
+                }
+
+            } catch (error) {
+                log(resultId, `❌ Error handling test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function cleanUp() {
+            const resultId = 'cleanupResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            if (!storageManager) {
+                log(resultId, '❌ StorageManager not initialized.', 'error');
+                return;
+            }
+
+            try {
+                // Delete individual test games
+                testGameIds.forEach(gameId => {
+                    try {
+                        storageManager.deleteGame(gameId);
+                        log(resultId, `✅ Deleted game: ${gameId}`, 'success');
+                    } catch (error) {
+                        log(resultId, `⚠️ Could not delete game ${gameId}: ${error.message}`, 'error');
+                    }
+                });
+
+                // Clear all data
+                storageManager.clearAllData();
+                log(resultId, '✅ All data cleared successfully', 'success');
+                
+                // Reset test data
+                testGameIds = [];
+                
+                // Verify cleanup
+                const stats = storageManager.getStorageStats();
+                log(resultId, `✅ Final games count: ${stats.gamesCount}`, 'success');
+
+            } catch (error) {
+                log(resultId, `❌ Cleanup failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic tests on load
+        window.onload = function() {
+            setTimeout(runBasicTests, 100);
+        };
+    </script>
+</body>
+</html>

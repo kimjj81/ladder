@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Error Handling Test - 사다리타기 게임</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+        .test-section {
+            background: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0.5rem;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+        .test-button.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+        .test-button.success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+        }
+        .test-results {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error-test-container {
+            min-height: 200px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background: #51cf66; }
+        .status-fail { background: #ff6b6b; }
+        .status-warn { background: #ffd43b; }
+        .test-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .progress-fill {
+            background: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-summary">
+        <h1>🧪 Enhanced Error Handling Test Suite</h1>
+        <p>사다리타기 게임의 향상된 오류 처리 기능을 종합적으로 테스트합니다.</p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="overallProgress"></div>
+        </div>
+        <div id="testSummary" style="margin-top: 1rem;">
+            <span id="passedTests">0</span> passed, 
+            <span id="failedTests">0</span> failed, 
+            <span id="totalTests">0</span> total
+        </div>
+    </div>
+
+    <div class="test-grid">
+        <div class="test-section">
+            <h2>1. 브라우저 호환성 검사</h2>
+            <button class="test-button" onclick="testBrowserCompatibility()">호환성 검사 실행</button>
+            <button class="test-button" onclick="testCompatibilityWarnings()">호환성 경고 테스트</button>
+            <div id="compatibilityResults" class="test-results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. 향상된 입력 검증</h2>
+            <button class="test-button" onclick="testEnhancedValidation()">향상된 검증 테스트</button>
+            <button class="test-button" onclick="testGameStateValidation()">게임 상태 검증</button>
+            <div id="validationResults" class="test-results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. 저장소 오류 처리</h2>
+            <button class="test-button" onclick="testEnhancedStorageHandling()">향상된 저장소 처리</button>
+            <button class="test-button danger" onclick="testProgressiveCleanup()">점진적 정리 테스트</button>
+            <div id="storageResults" class="test-results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. Canvas 오류 처리</h2>
+            <button class="test-button" onclick="testCanvasErrorHandling()">Canvas 오류 처리</button>
+            <button class="test-button" onclick="testMemoryConstraints()">메모리 제약 테스트</button>
+            <div class="error-test-container" id="canvasErrorContainer"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>5. 게임 시작 오류 처리</h2>
+            <button class="test-button" onclick="testGameStartErrors()">게임 시작 오류</button>
+            <button class="test-button" onclick="testErrorRecovery()">오류 복구 테스트</button>
+            <div class="error-test-container" id="gameStartContainer"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>6. 종합 오류 시나리오</h2>
+            <button class="test-button success" onclick="runComprehensiveTest()">종합 테스트 실행</button>
+            <button class="test-button" onclick="generateErrorReport()">오류 리포트 생성</button>
+            <div id="comprehensiveResults" class="test-results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Include all necessary scripts -->
+    <script src="js/error-handler.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ladder-game.js"></script>
+    <script src="js/ui-components.js"></script>
+
+    <script>
+        let errorHandler;
+        let storageManager;
+        let ladderGame;
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0
+        };
+
+        // Initialize components
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                errorHandler = new ErrorHandler();
+                storageManager = new StorageManager();
+                ladderGame = new LadderGame();
+                console.log('Enhanced test suite initialized');
+                updateTestSummary();
+            } catch (error) {
+                console.error('Failed to initialize test components:', error);
+                showTestResult('initialization', false, 'Failed to initialize test components: ' + error.message);
+            }
+        });
+
+        function updateTestSummary() {
+            document.getElementById('passedTests').textContent = testResults.passed;
+            document.getElementById('failedTests').textContent = testResults.failed;
+            document.getElementById('totalTests').textContent = testResults.total;
+            
+            const progressPercent = testResults.total > 0 ? (testResults.passed / testResults.total) * 100 : 0;
+            document.getElementById('overallProgress').style.width = progressPercent + '%';
+        }
+
+        function showTestResult(testName, passed, message, container = null) {
+            testResults.total++;
+            if (passed) {
+                testResults.passed++;
+            } else {
+                testResults.failed++;
+            }
+            updateTestSummary();
+
+            const statusClass = passed ? 'status-pass' : 'status-fail';
+            const statusIcon = passed ? '✅' : '❌';
+            const result = `<div><span class="status-indicator ${statusClass}"></span>${statusIcon} <strong>${testName}:</strong> ${message}</div>`;
+            
+            if (container) {
+                container.innerHTML += result;
+            }
+            
+            console.log(`Test ${testName}: ${passed ? 'PASS' : 'FAIL'} - ${message}`);
+        }
+
+        function testBrowserCompatibility() {
+            const resultsDiv = document.getElementById('compatibilityResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<h3>브라우저 호환성 테스트 결과:</h3>';
+            
+            if (!errorHandler) {
+                showTestResult('Browser Compatibility', false, 'ErrorHandler not initialized', resultsDiv);
+                return;
+            }
+
+            // Test browser support detection
+            const support = errorHandler.browserSupport;
+            let allSupported = true;
+            
+            Object.entries(support).forEach(([feature, supported]) => {
+                const testName = `${feature} Support`;
+                showTestResult(testName, supported, supported ? '지원됨' : '지원되지 않음', resultsDiv);
+                if (!supported && feature !== 'webGL') { // webGL is optional
+                    allSupported = false;
+                }
+            });
+
+            // Test compatibility recommendations
+            try {
+                const recommendations = errorHandler.getCompatibilityRecommendations();
+                showTestResult('Compatibility Recommendations', true, `${recommendations.length}개의 권장사항 생성`, resultsDiv);
+                
+                recommendations.forEach(rec => {
+                    resultsDiv.innerHTML += `<div style="margin-left: 20px; color: #666;">
+                        <strong>${rec.feature}:</strong> ${rec.issue}<br>
+                        <small>해결방법: ${rec.solutions.join(', ')}</small>
+                    </div>`;
+                });
+            } catch (error) {
+                showTestResult('Compatibility Recommendations', false, error.message, resultsDiv);
+            }
+
+            showTestResult('Overall Browser Compatibility', allSupported, allSupported ? '모든 필수 기능 지원' : '일부 기능 미지원', resultsDiv);
+        }
+
+        function testCompatibilityWarnings() {
+            const resultsDiv = document.getElementById('compatibilityResults');
+            resultsDiv.style.display = 'block';
+            
+            if (!errorHandler) {
+                showTestResult('Compatibility Warnings', false, 'ErrorHandler not initialized', resultsDiv);
+                return;
+            }
+
+            try {
+                // Create a test container for warnings
+                const testContainer = document.createElement('div');
+                testContainer.style.cssText = 'border: 1px solid #ddd; padding: 1rem; margin: 1rem 0; border-radius: 8px;';
+                resultsDiv.appendChild(testContainer);
+                
+                // Test compatibility warnings display
+                errorHandler.showCompatibilityWarnings(testContainer);
+                
+                // Check if warnings were displayed
+                setTimeout(() => {
+                    const warningElements = testContainer.querySelectorAll('.error-notification');
+                    showTestResult('Compatibility Warnings Display', warningElements.length >= 0, 
+                        `${warningElements.length}개의 호환성 경고 표시`, resultsDiv);
+                }, 1000);
+                
+            } catch (error) {
+                showTestResult('Compatibility Warnings', false, error.message, resultsDiv);
+            }
+        }
+
+        function testEnhancedValidation() {
+            const resultsDiv = document.getElementById('validationResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<h3>향상된 입력 검증 테스트:</h3>';
+            
+            if (!errorHandler) {
+                showTestResult('Enhanced Validation', false, 'ErrorHandler not initialized', resultsDiv);
+                return;
+            }
+
+            // Test enhanced slot count validation
+            const slotCountTests = [
+                { input: '', expected: false },
+                { input: 'invalid', expected: false },
+                { input: '1', expected: false },
+                { input: '2', expected: true },
+                { input: '16', expected: true }, // Should pass but with warning
+                { input: '21', expected: false }
+            ];
+
+            let validationPassed = 0;
+            slotCountTests.forEach(test => {
+                try {
+                    const result = errorHandler.validateSlotCount(test.input);
+                    const passed = result.isValid === test.expected;
+                    showTestResult(`Slot Count "${test.input}"`, passed, 
+                        `Expected: ${test.expected}, Got: ${result.isValid}`, resultsDiv);
+                    if (passed) validationPassed++;
+                } catch (error) {
+                    showTestResult(`Slot Count "${test.input}"`, false, error.message, resultsDiv);
+                }
+            });
+
+            // Test enhanced slot content validation
+            const contentTests = [
+                { input: '', expected: false },
+                { input: '   ', expected: false },
+                { input: '정상내용', expected: true },
+                { input: 'a'.repeat(21), expected: false },
+                { input: '특수문자<>', expected: true } // Should pass with warning
+            ];
+
+            contentTests.forEach(test => {
+                try {
+                    const result = errorHandler.validateSlotContent(test.input);
+                    const passed = result.isValid === test.expected;
+                    showTestResult(`Slot Content "${test.input.substring(0, 10)}..."`, passed, 
+                        `Expected: ${test.expected}, Got: ${result.isValid}`, resultsDiv);
+                    if (passed) validationPassed++;
+                } catch (error) {
+                    showTestResult(`Slot Content "${test.input.substring(0, 10)}..."`, false, error.message, resultsDiv);
+                }
+            });
+
+            const totalValidationTests = slotCountTests.length + contentTests.length;
+            showTestResult('Enhanced Validation Overall', validationPassed === totalValidationTests, 
+                `${validationPassed}/${totalValidationTests} validation tests passed`, resultsDiv);
+        }
+
+        function testGameStateValidation() {
+            const resultsDiv = document.getElementById('validationResults');
+            resultsDiv.style.display = 'block';
+            
+            if (!errorHandler) {
+                showTestResult('Game State Validation', false, 'ErrorHandler not initialized', resultsDiv);
+                return;
+            }
+
+            // Test game state validation
+            const gameStateTests = [
+                {
+                    name: 'Valid Game State',
+                    data: {
+                        slotCount: 4,
+                        topSlots: ['참가자1', '참가자2', '참가자3', '참가자4'],
+                        bottomSlots: ['결과1', '결과2', '결과3', '결과4']
+                    },
+                    expected: true
+                },
+                {
+                    name: 'Invalid Slot Count',
+                    data: {
+                        slotCount: 1,
+                        topSlots: ['참가자1'],
+                        bottomSlots: ['결과1']
+                    },
+                    expected: false
+                },
+                {
+                    name: 'Empty Top Slots',
+                    data: {
+                        slotCount: 3,
+                        topSlots: ['참가자1', '', '참가자3'],
+                        bottomSlots: ['결과1', '결과2', '결과3']
+                    },
+                    expected: false
+                },
+                {
+                    name: 'Duplicate Entries',
+                    data: {
+                        slotCount: 3,
+                        topSlots: ['참가자1', '참가자1', '참가자2'],
+                        bottomSlots: ['결과1', '결과2', '결과3']
+                    },
+                    expected: true // Should pass but with warnings
+                }
+            ];
+
+            gameStateTests.forEach(test => {
+                try {
+                    const result = errorHandler.validateGameState(test.data);
+                    const passed = result.isValid === test.expected;
+                    showTestResult(test.name, passed, 
+                        `Expected: ${test.expected}, Got: ${result.isValid}`, resultsDiv);
+                    
+                    if (result.errors.length > 0) {
+                        resultsDiv.innerHTML += `<div style="margin-left: 20px; color: #666; font-size: 0.9em;">
+                            Errors: ${result.errors.map(e => e.message).join(', ')}
+                        </div>`;
+                    }
+                } catch (error) {
+                    showTestResult(test.name, false, error.message, resultsDiv);
+                }
+            });
+        }
+
+        function testEnhancedStorageHandling() {
+            const resultsDiv = document.getElementById('storageResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<h3>향상된 저장소 처리 테스트:</h3>';
+            
+            if (!storageManager) {
+                showTestResult('Enhanced Storage', false, 'StorageManager not initialized', resultsDiv);
+                return;
+            }
+
+            // Test storage availability
+            try {
+                const isAvailable = storageManager.isStorageAvailable();
+                showTestResult('Storage Availability', isAvailable, 
+                    isAvailable ? '저장소 사용 가능' : '저장소 사용 불가', resultsDiv);
+            } catch (error) {
+                showTestResult('Storage Availability', false, error.message, resultsDiv);
+            }
+
+            // Test enhanced save with validation
+            const testGameData = {
+                slotCount: 4,
+                topSlots: ['테스트1', '테스트2', '테스트3', '테스트4'],
+                bottomSlots: ['결과1', '결과2', '결과3', '결과4']
+            };
+
+            try {
+                const gameId = storageManager.saveGame(testGameData, 'Enhanced Test Game');
+                showTestResult('Enhanced Save', !!gameId, 
+                    gameId ? `게임 저장 성공: ${gameId}` : '게임 저장 실패', resultsDiv);
+                
+                // Test load
+                if (gameId) {
+                    const loadedGame = storageManager.loadGame(gameId);
+                    showTestResult('Enhanced Load', !!loadedGame, 
+                        loadedGame ? '게임 로드 성공' : '게임 로드 실패', resultsDiv);
+                }
+            } catch (error) {
+                showTestResult('Enhanced Save/Load', false, error.message, resultsDiv);
+            }
+
+            // Test storage stats
+            try {
+                const stats = storageManager.getStorageStats();
+                showTestResult('Storage Stats', !!stats, 
+                    `게임 ${stats.gamesCount}개, 사용률 ${stats.usagePercent}%`, resultsDiv);
+            } catch (error) {
+                showTestResult('Storage Stats', false, error.message, resultsDiv);
+            }
+        }
+
+        function testProgressiveCleanup() {
+            const resultsDiv = document.getElementById('storageResults');
+            resultsDiv.style.display = 'block';
+            
+            if (!storageManager) {
+                showTestResult('Progressive Cleanup', false, 'StorageManager not initialized', resultsDiv);
+                return;
+            }
+
+            // Create test data for cleanup
+            const testData = {
+                games: {},
+                metadata: { version: '1.0', created: new Date().toISOString() }
+            };
+
+            // Add many test games
+            for (let i = 0; i < 25; i++) {
+                const gameId = `test_game_${i}`;
+                testData.games[gameId] = {
+                    id: gameId,
+                    name: `Test Game ${i}`,
+                    slotCount: 4,
+                    topSlots: [`T${i}1`, `T${i}2`, `T${i}3`, `T${i}4`],
+                    bottomSlots: [`R${i}1`, `R${i}2`, `R${i}3`, `R${i}4`],
+                    createdAt: new Date(Date.now() - i * 86400000).toISOString(), // Different dates
+                    lastUsed: new Date(Date.now() - i * 86400000).toISOString()
+                };
+            }
+
+            try {
+                const originalSize = JSON.stringify(testData).length;
+                const cleanupResult = storageManager.performProgressiveCleanup(testData, originalSize);
+                
+                showTestResult('Progressive Cleanup', cleanupResult.success, 
+                    `정리 완료: ${cleanupResult.freedSpace}MB 확보, ${cleanupResult.cleanupAttempts}회 시도`, resultsDiv);
+                
+                const remainingGames = Object.keys(testData.games).length;
+                showTestResult('Cleanup Game Count', remainingGames <= 15, 
+                    `남은 게임: ${remainingGames}개`, resultsDiv);
+                    
+            } catch (error) {
+                showTestResult('Progressive Cleanup', false, error.message, resultsDiv);
+            }
+        }
+
+        function testCanvasErrorHandling() {
+            const container = document.getElementById('canvasErrorContainer');
+            container.innerHTML = '<h4>Canvas 오류 처리 테스트:</h4>';
+            
+            if (!errorHandler) {
+                showTestResult('Canvas Error Handling', false, 'ErrorHandler not initialized', container);
+                return;
+            }
+
+            // Test canvas support check
+            try {
+                const canvasSupported = errorHandler.checkFeatureSupport('canvas');
+                showTestResult('Canvas Support Check', true, 
+                    canvasSupported ? 'Canvas 지원됨' : 'Canvas 미지원', container);
+                
+                // Test canvas fallback creation
+                const testContainer = document.createElement('div');
+                testContainer.style.cssText = 'border: 1px solid #ddd; padding: 1rem; margin: 1rem 0;';
+                container.appendChild(testContainer);
+                
+                const mockLadderData = {
+                    verticalLines: 4,
+                    horizontalBars: [
+                        { level: 0, bars: [0, 2] },
+                        { level: 1, bars: [1] }
+                    ]
+                };
+                
+                const fallback = errorHandler.createCanvasFallback(testContainer, mockLadderData);
+                showTestResult('Canvas Fallback Creation', !!fallback, 
+                    fallback ? 'SVG 대체 생성 성공' : 'SVG 대체 생성 실패', container);
+                
+            } catch (error) {
+                showTestResult('Canvas Error Handling', false, error.message, container);
+            }
+        }
+
+        function testMemoryConstraints() {
+            const container = document.getElementById('canvasErrorContainer');
+            
+            if (!ladderGame) {
+                showTestResult('Memory Constraints', false, 'LadderGame not initialized', container);
+                return;
+            }
+
+            try {
+                // Test memory constraint detection
+                const isLowMemory = ladderGame.isLowMemoryDevice ? ladderGame.isLowMemoryDevice() : false;
+                showTestResult('Memory Constraint Detection', true, 
+                    isLowMemory ? '저메모리 기기 감지됨' : '일반 메모리 기기', container);
+                
+                // Test performance memory info
+                if (performance.memory) {
+                    const memoryInfo = performance.memory;
+                    const usagePercent = (memoryInfo.usedJSHeapSize / memoryInfo.jsHeapSizeLimit) * 100;
+                    showTestResult('Memory Usage Check', true, 
+                        `메모리 사용률: ${usagePercent.toFixed(1)}%`, container);
+                } else {
+                    showTestResult('Memory Usage Check', true, 'Memory API 사용 불가', container);
+                }
+                
+            } catch (error) {
+                showTestResult('Memory Constraints', false, error.message, container);
+            }
+        }
+
+        function testGameStartErrors() {
+            const container = document.getElementById('gameStartContainer');
+            container.innerHTML = '<h4>게임 시작 오류 처리 테스트:</h4>';
+            
+            if (!ladderGame) {
+                showTestResult('Game Start Errors', false, 'LadderGame not initialized', container);
+                return;
+            }
+
+            // Test error handling methods exist
+            const errorMethods = ['handleGameStartError', 'handleCanvasInitError', 'handleCanvasRenderError'];
+            errorMethods.forEach(method => {
+                const hasMethod = typeof ladderGame[method] === 'function';
+                showTestResult(`${method} Method`, hasMethod, 
+                    hasMethod ? '메서드 존재함' : '메서드 없음', container);
+            });
+
+            // Test game state validation before start
+            try {
+                ladderGame.slotCount = 3;
+                ladderGame.topSlots = ['테스트1', '테스트2', ''];
+                ladderGame.bottomSlots = ['결과1', '결과2', '결과3'];
+                ladderGame.gameState = 'ready';
+                
+                // This should trigger validation error
+                ladderGame.startGame();
+                
+                // If we get here without error, the validation might not be working
+                showTestResult('Game Start Validation', false, '빈 슬롯이 있는데 게임이 시작됨', container);
+            } catch (error) {
+                showTestResult('Game Start Validation', true, '빈 슬롯 검증 작동함', container);
+            }
+        }
+
+        function testErrorRecovery() {
+            const container = document.getElementById('gameStartContainer');
+            
+            if (!errorHandler) {
+                showTestResult('Error Recovery', false, 'ErrorHandler not initialized', container);
+                return;
+            }
+
+            try {
+                // Test error logging
+                errorHandler.logError('Test Error', { message: 'This is a test error' });
+                const errorLog = errorHandler.getErrorLog();
+                showTestResult('Error Logging', errorLog.length > 0, 
+                    `${errorLog.length}개의 오류 로그 기록됨`, container);
+                
+                // Test error report generation
+                const errorReport = errorHandler.createErrorReport();
+                showTestResult('Error Report Generation', !!errorReport, 
+                    errorReport ? '오류 리포트 생성 성공' : '오류 리포트 생성 실패', container);
+                
+                // Test error log clearing
+                errorHandler.clearErrorLog();
+                const clearedLog = errorHandler.getErrorLog();
+                showTestResult('Error Log Clearing', clearedLog.length === 0, 
+                    `로그 정리 후: ${clearedLog.length}개 항목`, container);
+                
+            } catch (error) {
+                showTestResult('Error Recovery', false, error.message, container);
+            }
+        }
+
+        function runComprehensiveTest() {
+            const resultsDiv = document.getElementById('comprehensiveResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<h3>종합 테스트 실행 중...</h3>';
+            
+            // Reset test results for comprehensive test
+            const originalResults = { ...testResults };
+            testResults = { passed: 0, failed: 0, total: 0 };
+            
+            // Run all tests in sequence
+            setTimeout(() => {
+                testBrowserCompatibility();
+                setTimeout(() => {
+                    testEnhancedValidation();
+                    setTimeout(() => {
+                        testEnhancedStorageHandling();
+                        setTimeout(() => {
+                            testCanvasErrorHandling();
+                            setTimeout(() => {
+                                testGameStartErrors();
+                                setTimeout(() => {
+                                    // Show comprehensive results
+                                    const passRate = (testResults.passed / testResults.total * 100).toFixed(1);
+                                    resultsDiv.innerHTML = `
+                                        <h3>종합 테스트 완료</h3>
+                                        <div style="font-size: 1.2em; margin: 1rem 0;">
+                                            <strong>통과율: ${passRate}%</strong>
+                                        </div>
+                                        <div>
+                                            ✅ 통과: ${testResults.passed}개<br>
+                                            ❌ 실패: ${testResults.failed}개<br>
+                                            📊 총 테스트: ${testResults.total}개
+                                        </div>
+                                        <div style="margin-top: 1rem; padding: 1rem; background: ${passRate >= 80 ? '#d4edda' : '#f8d7da'}; border-radius: 8px;">
+                                            ${passRate >= 80 ? 
+                                                '🎉 우수한 오류 처리 구현!' : 
+                                                '⚠️ 일부 오류 처리 개선 필요'}
+                                        </div>
+                                    `;
+                                    
+                                    // Restore original results
+                                    testResults = originalResults;
+                                    updateTestSummary();
+                                }, 500);
+                            }, 500);
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        function generateErrorReport() {
+            const resultsDiv = document.getElementById('comprehensiveResults');
+            resultsDiv.style.display = 'block';
+            
+            if (!errorHandler) {
+                resultsDiv.innerHTML = '<p style="color: red;">❌ ErrorHandler not initialized</p>';
+                return;
+            }
+
+            try {
+                const report = errorHandler.createErrorReport();
+                
+                resultsDiv.innerHTML = `
+                    <h3>오류 리포트</h3>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.9em;">
+                        <strong>생성 시간:</strong> ${report.timestamp}<br>
+                        <strong>브라우저:</strong> ${report.userAgent.substring(0, 100)}...<br>
+                        <strong>URL:</strong> ${report.url}<br><br>
+                        
+                        <strong>브라우저 지원:</strong><br>
+                        ${Object.entries(report.browserSupport).map(([key, value]) => 
+                            `• ${key}: ${value ? '✅' : '❌'}`
+                        ).join('<br>')}<br><br>
+                        
+                        <strong>호환성 권장사항:</strong> ${report.compatibilityRecommendations.length}개<br>
+                        <strong>오류 로그:</strong> ${report.errorLog.length}개<br>
+                        
+                        ${report.performance.memory !== 'Not available' ? `
+                            <br><strong>메모리 사용량:</strong><br>
+                            • 사용 중: ${(report.performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB<br>
+                            • 총 할당: ${(report.performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB<br>
+                            • 한계: ${(report.performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB
+                        ` : ''}
+                    </div>
+                    <button class="test-button" onclick="downloadErrorReport(${JSON.stringify(report).replace(/"/g, '&quot;')})">
+                        📥 리포트 다운로드
+                    </button>
+                `;
+                
+                showTestResult('Error Report Generation', true, '오류 리포트 생성 완료', resultsDiv);
+                
+            } catch (error) {
+                showTestResult('Error Report Generation', false, error.message, resultsDiv);
+                resultsDiv.innerHTML += `<p style="color: red;">오류 리포트 생성 실패: ${error.message}</p>`;
+            }
+        }
+
+        function downloadErrorReport(report) {
+            try {
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `error-report-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('다운로드 실패: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

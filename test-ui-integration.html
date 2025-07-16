@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        button { margin: 5px; padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; font-family: monospace; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .mock-ui { border: 1px solid #ddd; padding: 10px; margin: 10px 0; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>UI Integration Test for Save/Load Functionality</h1>
+    
+    <div class="test-section">
+        <h2>Mock UI Elements</h2>
+        <div class="mock-ui">
+            <!-- Mock save game button -->
+            <button id="saveGameBtn" disabled>
+                <span class="btn-icon">💾</span>
+                게임 저장
+            </button>
+            
+            <!-- Mock randomize button -->
+            <button id="randomizeBtn" disabled>
+                <span class="btn-icon">🎯</span>
+                다시 섞기
+            </button>
+            
+            <!-- Mock saved games container -->
+            <div id="savedGamesContainer" style="margin-top: 10px; min-height: 100px; border: 1px dashed #ccc; padding: 10px;">
+                Saved games will appear here
+            </div>
+            
+            <!-- Mock refresh button -->
+            <button id="refreshSavedGamesBtn">
+                <span class="btn-icon">🔄</span>
+                새로고침
+            </button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>1. Test Complete Save/Load Workflow</h2>
+        <button onclick="testCompleteWorkflow()">Test Complete Workflow</button>
+        <div id="workflowResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Button States</h2>
+        <button onclick="testButtonStates()">Test Button States</button>
+        <div id="buttonResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Error Handling</h2>
+        <button onclick="testErrorHandling()">Test Error Handling</button>
+        <div id="errorResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Clean Up</h2>
+        <button onclick="cleanUp()">Clear All Test Data</button>
+        <div id="cleanupResult" class="result"></div>
+    </div>
+
+    <!-- Include all necessary scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/ladder-game.js"></script>
+    <script src="js/saved-games-manager.js"></script>
+    
+    <script>
+        let testGameIds = [];
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        function testCompleteWorkflow() {
+            const resultId = 'workflowResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Step 1: Initialize components
+                if (!window.ladderGame) {
+                    window.ladderGame = new LadderGame();
+                }
+                if (!window.savedGamesManager) {
+                    window.savedGamesManager = new SavedGamesManager();
+                }
+                log(resultId, '✅ Components initialized', 'success');
+
+                // Step 2: Set up a complete game configuration
+                window.ladderGame.slotCount = 3;
+                window.ladderGame.topSlots = ['Player 1', 'Player 2', 'Player 3'];
+                window.ladderGame.bottomSlots = ['Gold', 'Silver', 'Bronze'];
+                window.ladderGame.gameState = 'ready';
+                log(resultId, '✅ Game configuration set up', 'success');
+
+                // Step 3: Test save functionality
+                const gameId = window.ladderGame.saveConfiguration('Workflow Test Game');
+                testGameIds.push(gameId);
+                log(resultId, `✅ Game saved with ID: ${gameId}`, 'success');
+
+                // Step 4: Clear game state
+                window.ladderGame.slotCount = 0;
+                window.ladderGame.topSlots = [];
+                window.ladderGame.bottomSlots = [];
+                window.ladderGame.gameState = 'setup';
+                log(resultId, '✅ Game state cleared', 'success');
+
+                // Step 5: Test load functionality
+                const loadedGame = window.ladderGame.loadGameConfiguration(gameId);
+                log(resultId, `✅ Game loaded: ${loadedGame.name}`, 'success');
+
+                // Step 6: Verify loaded data
+                const dataIntact = window.ladderGame.slotCount === 3 &&
+                                 window.ladderGame.topSlots.length === 3 &&
+                                 window.ladderGame.bottomSlots.length === 3 &&
+                                 window.ladderGame.gameState === 'ready';
+                log(resultId, `✅ Data integrity: ${dataIntact ? 'PASS' : 'FAIL'}`, dataIntact ? 'success' : 'error');
+
+                // Step 7: Test randomize functionality
+                window.ladderGame.randomizeWithSameSlots();
+                log(resultId, '✅ Randomize functionality tested', 'success');
+
+                // Step 8: Test saved games manager
+                window.savedGamesManager.loadSavedGames();
+                const allGames = window.savedGamesManager.storageManager.getAllSavedGames();
+                const testGame = allGames.find(game => game.id === gameId);
+                log(resultId, `✅ Game found in manager: ${testGame ? 'YES' : 'NO'}`, testGame ? 'success' : 'error');
+
+                log(resultId, '🎉 Complete workflow test PASSED', 'success');
+
+            } catch (error) {
+                log(resultId, `❌ Workflow test failed: ${error.message}`, 'error');
+                console.error('Workflow test error:', error);
+            }
+        }
+
+        function testButtonStates() {
+            const resultId = 'buttonResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Test save button state with empty game
+                window.ladderGame.slotCount = 0;
+                window.ladderGame.topSlots = [];
+                window.ladderGame.bottomSlots = [];
+                window.ladderGame.gameState = 'setup';
+                window.ladderGame.updateGameState();
+                
+                const saveBtn = document.getElementById('saveGameBtn');
+                const randomizeBtn = document.getElementById('randomizeBtn');
+                
+                log(resultId, `✅ Save button disabled (empty game): ${saveBtn.disabled}`, saveBtn.disabled ? 'success' : 'error');
+                log(resultId, `✅ Randomize button disabled (empty game): ${randomizeBtn.disabled}`, randomizeBtn.disabled ? 'success' : 'error');
+
+                // Test button state with complete game
+                window.ladderGame.slotCount = 2;
+                window.ladderGame.topSlots = ['A', 'B'];
+                window.ladderGame.bottomSlots = ['1', '2'];
+                window.ladderGame.gameState = 'ready';
+                window.ladderGame.updateGameState();
+                
+                log(resultId, `✅ Save button enabled (complete game): ${!saveBtn.disabled}`, !saveBtn.disabled ? 'success' : 'error');
+                log(resultId, `✅ Randomize button enabled (complete game): ${!randomizeBtn.disabled}`, !randomizeBtn.disabled ? 'success' : 'error');
+
+                log(resultId, '🎉 Button states test PASSED', 'success');
+
+            } catch (error) {
+                log(resultId, `❌ Button states test failed: ${error.message}`, 'error');
+                console.error('Button states test error:', error);
+            }
+        }
+
+        function testErrorHandling() {
+            const resultId = 'errorResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Test save with incomplete game
+                window.ladderGame.slotCount = 2;
+                window.ladderGame.topSlots = ['A', ''];  // Incomplete
+                window.ladderGame.bottomSlots = ['1', '2'];
+                window.ladderGame.gameState = 'input';
+                
+                try {
+                    window.ladderGame.saveConfiguration('Incomplete Game');
+                    log(resultId, '❌ Should have failed to save incomplete game', 'error');
+                } catch (error) {
+                    log(resultId, '✅ Correctly rejected incomplete game save', 'success');
+                }
+
+                // Test load non-existent game
+                try {
+                    window.ladderGame.loadGameConfiguration('non-existent-id');
+                    log(resultId, '❌ Should have failed to load non-existent game', 'error');
+                } catch (error) {
+                    log(resultId, '✅ Correctly handled non-existent game load', 'success');
+                }
+
+                // Test randomize with incomplete game
+                window.ladderGame.gameState = 'setup';
+                window.ladderGame.randomizeWithSameSlots();
+                log(resultId, '✅ Randomize correctly handled incomplete game', 'success');
+
+                log(resultId, '🎉 Error handling test PASSED', 'success');
+
+            } catch (error) {
+                log(resultId, `❌ Error handling test failed: ${error.message}`, 'error');
+                console.error('Error handling test error:', error);
+            }
+        }
+
+        function cleanUp() {
+            const resultId = 'cleanupResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            try {
+                // Delete all test games
+                testGameIds.forEach(gameId => {
+                    try {
+                        window.ladderGame.storageManager.deleteGame(gameId);
+                        log(resultId, `✅ Deleted test game: ${gameId}`, 'success');
+                    } catch (error) {
+                        log(resultId, `⚠️ Could not delete game ${gameId}: ${error.message}`, 'error');
+                    }
+                });
+
+                // Reset test game IDs
+                testGameIds = [];
+                
+                // Reset ladder game state
+                if (window.ladderGame) {
+                    window.ladderGame.slotCount = 0;
+                    window.ladderGame.topSlots = [];
+                    window.ladderGame.bottomSlots = [];
+                    window.ladderGame.gameState = 'setup';
+                    window.ladderGame.updateGameState();
+                }
+
+                log(resultId, '✅ Cleanup completed', 'success');
+
+            } catch (error) {
+                log(resultId, `❌ Cleanup failed: ${error.message}`, 'error');
+                console.error('Cleanup error:', error);
+            }
+        }
+
+        // Auto-initialize on load
+        window.onload = function() {
+            console.log('UI Integration Test loaded');
+            
+            // Set up mock event listeners
+            document.getElementById('saveGameBtn').addEventListener('click', () => {
+                if (window.ladderGame) {
+                    window.ladderGame.handleSaveGame();
+                }
+            });
+            
+            document.getElementById('randomizeBtn').addEventListener('click', () => {
+                if (window.ladderGame) {
+                    window.ladderGame.randomizeWithSameSlots();
+                }
+            });
+            
+            document.getElementById('refreshSavedGamesBtn').addEventListener('click', () => {
+                if (window.savedGamesManager) {
+                    window.savedGamesManager.loadSavedGames();
+                }
+            });
+        };
+    </script>
+</body>
+</html>

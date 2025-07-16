@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>Responsive Design Test - 사다리타기 게임</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/ladder.css">
+    
+    <style>
+        /* Test-specific styles */
+        .test-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 1rem;
+            border: 2px solid #e9ecef;
+        }
+        
+        .test-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .test-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .device-info {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .touch-test-area {
+            background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%);
+            border: 2px dashed #667eea;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .touch-feedback {
+            background: #d4edda;
+            color: #155724;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-toggle" id="menuToggle">
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+            </button>
+            <h1 class="site-title">반응형 디자인 테스트</h1>
+        </div>
+    </header>
+
+    <!-- Menu Backdrop -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar Menu -->
+        <nav class="sidebar" id="sidebar">
+            <ul class="menu-list">
+                <li><a href="#touch-test" class="menu-item active">터치 테스트</a></li>
+                <li><a href="#button-test" class="menu-item">버튼 테스트</a></li>
+                <li><a href="#form-test" class="menu-item">폼 테스트</a></li>
+                <li><a href="#slot-test" class="menu-item">슬롯 테스트</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content" id="mainContent">
+            <!-- Device Information -->
+            <div class="test-section">
+                <h2 class="test-title">📱 디바이스 정보</h2>
+                <div class="device-info" id="deviceInfo">
+                    Loading device information...
+                </div>
+            </div>
+
+            <!-- Touch Test Section -->
+            <div class="test-section">
+                <h2 class="test-title">👆 터치 인터랙션 테스트</h2>
+                <p class="test-description">아래 영역을 터치하여 터치 이벤트가 올바르게 작동하는지 확인하세요.</p>
+                
+                <div class="touch-test-area" id="touchTestArea">
+                    <p>여기를 터치해보세요!</p>
+                    <div class="touch-feedback" id="touchFeedback">
+                        터치 이벤트가 감지되었습니다! ✅
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Test Section -->
+            <div class="test-section">
+                <h2 class="test-title">🔘 버튼 터치 타겟 테스트</h2>
+                <p class="test-description">모든 버튼이 최소 44px 터치 타겟 크기를 가지는지 확인하세요.</p>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                    <button class="btn btn-success">Success Button</button>
+                    <button class="btn btn-warning">Warning Button</button>
+                </div>
+            </div>
+
+            <!-- Form Test Section -->
+            <div class="test-section">
+                <h2 class="test-title">📝 폼 요소 테스트</h2>
+                <p class="test-description">입력 필드가 모바일에서 올바르게 작동하는지 확인하세요 (iOS에서 줌 방지).</p>
+                
+                <div class="form-group">
+                    <label class="form-label">텍스트 입력</label>
+                    <input type="text" class="form-input" placeholder="여기에 입력하세요">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">숫자 입력</label>
+                    <input type="number" class="form-input slot-count-input" placeholder="숫자를 입력하세요" min="2" max="20">
+                </div>
+            </div>
+
+            <!-- Slot Test Section -->
+            <div class="test-section">
+                <h2 class="test-title">🎯 슬롯 인터랙션 테스트</h2>
+                <p class="test-description">슬롯 요소들이 터치 디바이스에서 올바르게 작동하는지 확인하세요.</p>
+                
+                <div class="slots-container">
+                    <div class="slot empty" data-type="top" data-index="0">빈 슬롯</div>
+                    <div class="slot filled" data-type="top" data-index="1">채워진 슬롯</div>
+                    <div class="slot active" data-type="top" data-index="2">활성 슬롯</div>
+                    <div class="slot editing" data-type="top" data-index="3">편집 중</div>
+                </div>
+                
+                <div class="navigation-controls" style="margin-top: 2rem;">
+                    <button class="nav-btn prev-btn">
+                        <span class="nav-icon">◀</span>
+                        이전
+                    </button>
+                    <button class="nav-btn next-btn">
+                        다음
+                        <span class="nav-icon">▶</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Viewport Test Section -->
+            <div class="test-section">
+                <h2 class="test-title">📐 뷰포트 테스트</h2>
+                <p class="test-description">뷰포트 크기와 방향 변경이 올바르게 처리되는지 확인하세요.</p>
+                
+                <div class="device-info" id="viewportInfo">
+                    Loading viewport information...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+    <script>
+        // Test-specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update device information
+            updateDeviceInfo();
+            updateViewportInfo();
+            
+            // Setup touch test
+            setupTouchTest();
+            
+            // Update viewport info on resize and orientation change
+            window.addEventListener('resize', updateViewportInfo);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(updateViewportInfo, 100);
+            });
+        });
+
+        function updateDeviceInfo() {
+            const deviceInfo = document.getElementById('deviceInfo');
+            const info = {
+                'User Agent': navigator.userAgent,
+                'Platform': navigator.platform,
+                'Touch Support': 'ontouchstart' in window ? 'Yes' : 'No',
+                'Screen Size': `${screen.width} x ${screen.height}`,
+                'Device Pixel Ratio': window.devicePixelRatio || 1,
+                'Orientation': screen.orientation ? screen.orientation.type : 'Unknown'
+            };
+            
+            let html = '';
+            for (const [key, value] of Object.entries(info)) {
+                html += `<div><strong>${key}:</strong> ${value}</div>`;
+            }
+            
+            deviceInfo.innerHTML = html;
+        }
+
+        function updateViewportInfo() {
+            const viewportInfo = document.getElementById('viewportInfo');
+            const info = {
+                'Window Size': `${window.innerWidth} x ${window.innerHeight}`,
+                'Document Size': `${document.documentElement.clientWidth} x ${document.documentElement.clientHeight}`,
+                'Visual Viewport': window.visualViewport ? 
+                    `${window.visualViewport.width} x ${window.visualViewport.height}` : 'Not supported',
+                'CSS Viewport Height': getComputedStyle(document.documentElement).getPropertyValue('--vh'),
+                'Orientation': window.orientation !== undefined ? `${window.orientation}°` : 'Unknown'
+            };
+            
+            let html = '';
+            for (const [key, value] of Object.entries(info)) {
+                html += `<div><strong>${key}:</strong> ${value}</div>`;
+            }
+            
+            viewportInfo.innerHTML = html;
+        }
+
+        function setupTouchTest() {
+            const touchArea = document.getElementById('touchTestArea');
+            const feedback = document.getElementById('touchFeedback');
+            
+            // Touch events
+            touchArea.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                touchArea.style.background = 'linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%)';
+                feedback.style.display = 'block';
+                feedback.textContent = 'Touch Start 이벤트 감지! 👆';
+            }, { passive: false });
+            
+            touchArea.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                touchArea.style.background = 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)';
+                feedback.textContent = 'Touch End 이벤트 감지! ✅';
+                
+                setTimeout(() => {
+                    touchArea.style.background = 'linear-gradient(135deg, #fff 0%, #f0f8ff 100%)';
+                    feedback.style.display = 'none';
+                }, 2000);
+            }, { passive: false });
+            
+            // Mouse events for desktop
+            touchArea.addEventListener('mousedown', function() {
+                touchArea.style.background = 'linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%)';
+                feedback.style.display = 'block';
+                feedback.textContent = 'Mouse Down 이벤트 감지! 🖱️';
+            });
+            
+            touchArea.addEventListener('mouseup', function() {
+                touchArea.style.background = 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)';
+                feedback.textContent = 'Mouse Up 이벤트 감지! ✅';
+                
+                setTimeout(() => {
+                    touchArea.style.background = 'linear-gradient(135deg, #fff 0%, #f0f8ff 100%)';
+                    feedback.style.display = 'none';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ladder Generation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-canvas {
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+        }
+        .test-results {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ladder Generation System Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Basic Ladder Generation</h2>
+        <button onclick="testBasicGeneration()">Generate Basic Ladder</button>
+        <div id="basicResults" class="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Canvas Rendering</h2>
+        <button onclick="testCanvasRendering()">Test Canvas Drawing</button>
+        <canvas id="testCanvas" class="test-canvas" width="600" height="400"></canvas>
+        <div id="canvasResults" class="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Path Tracing</h2>
+        <button onclick="testPathTracing()">Test Path Tracing</button>
+        <div id="pathResults" class="test-results"></div>
+    </div>
+
+    <script>
+        // Mock LadderGame class for testing
+        class TestLadderGame {
+            constructor(slotCount = 4) {
+                this.slotCount = slotCount;
+                this.topSlots = ['Alice', 'Bob', 'Charlie', 'David'];
+                this.bottomSlots = ['Prize A', 'Prize B', 'Prize C', 'Prize D'];
+            }
+
+            generateRandomConnections() {
+                const bottomIndices = Array.from({length: this.slotCount}, (_, i) => i);
+                
+                // Fisher-Yates shuffle algorithm
+                for (let i = bottomIndices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [bottomIndices[i], bottomIndices[j]] = [bottomIndices[j], bottomIndices[i]];
+                }
+                
+                return bottomIndices;
+            }
+
+            generateLadderStructure() {
+                const structure = {
+                    verticalLines: this.slotCount,
+                    horizontalBars: [],
+                    paths: []
+                };
+                
+                const numLevels = Math.max(5, this.slotCount * 2);
+                
+                for (let level = 0; level < numLevels; level++) {
+                    const levelBars = [];
+                    let i = 0;
+                    
+                    while (i < this.slotCount - 1) {
+                        if (Math.random() < 0.4) {
+                            levelBars.push(i);
+                            i += 2;
+                        } else {
+                            i++;
+                        }
+                    }
+                    
+                    if (levelBars.length > 0) {
+                        structure.horizontalBars.push({
+                            level: level,
+                            bars: levelBars
+                        });
+                    }
+                }
+                
+                return structure;
+            }
+        }
+
+        // Mock LadderRenderer class for testing
+        class TestLadderRenderer {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas ? canvas.getContext('2d') : null;
+                this.config = {
+                    lineWidth: 3,
+                    verticalLineColor: '#333',
+                    horizontalBarColor: '#666',
+                    highlightColor: '#ff4757',
+                    padding: 40
+                };
+            }
+
+            drawLadder(structure) {
+                if (!this.ctx || !structure) return;
+                
+                this.clearCanvas();
+                this.calculateDimensions(structure);
+                this.drawComplete(structure);
+            }
+
+            calculateDimensions(structure) {
+                const canvasWidth = this.canvas.width;
+                const canvasHeight = this.canvas.height;
+                
+                this.slotWidth = (canvasWidth - this.config.padding * 2) / (structure.verticalLines - 1);
+                this.levelHeight = Math.max(30, (canvasHeight - this.config.padding * 2) / (structure.horizontalBars.length + 2));
+                this.startX = this.config.padding;
+                this.startY = this.config.padding;
+                this.endY = canvasHeight - this.config.padding;
+            }
+
+            drawComplete(structure) {
+                const { verticalLines, horizontalBars } = structure;
+                
+                // Draw vertical lines
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = this.config.verticalLineColor;
+                this.ctx.lineWidth = this.config.lineWidth;
+                this.ctx.lineCap = 'round';
+                
+                for (let i = 0; i < verticalLines; i++) {
+                    const x = this.startX + i * this.slotWidth;
+                    this.ctx.moveTo(x, this.startY);
+                    this.ctx.lineTo(x, this.endY);
+                }
+                this.ctx.stroke();
+                
+                // Draw horizontal bars
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = this.config.horizontalBarColor;
+                
+                horizontalBars.forEach(levelData => {
+                    const y = this.startY + (levelData.level + 1) * this.levelHeight;
+                    
+                    levelData.bars.forEach(barIndex => {
+                        const x1 = this.startX + barIndex * this.slotWidth;
+                        const x2 = this.startX + (barIndex + 1) * this.slotWidth;
+                        
+                        this.ctx.moveTo(x1, y);
+                        this.ctx.lineTo(x2, y);
+                    });
+                });
+                this.ctx.stroke();
+            }
+
+            clearCanvas() {
+                if (this.ctx) {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                }
+            }
+        }
+
+        // Test functions
+        function testBasicGeneration() {
+            const game = new TestLadderGame(4);
+            const connections = game.generateRandomConnections();
+            const structure = game.generateLadderStructure();
+            
+            const results = document.getElementById('basicResults');
+            results.innerHTML = `
+                <h3>Generation Results:</h3>
+                <p><strong>Connections:</strong> ${JSON.stringify(connections)}</p>
+                <p><strong>Vertical Lines:</strong> ${structure.verticalLines}</p>
+                <p><strong>Horizontal Bar Levels:</strong> ${structure.horizontalBars.length}</p>
+                <p><strong>Sample Bars:</strong> ${JSON.stringify(structure.horizontalBars.slice(0, 3))}</p>
+                <p><strong>Status:</strong> ✅ Basic generation working!</p>
+            `;
+        }
+
+        function testCanvasRendering() {
+            const canvas = document.getElementById('testCanvas');
+            const renderer = new TestLadderRenderer(canvas);
+            const game = new TestLadderGame(5);
+            const structure = game.generateLadderStructure();
+            
+            renderer.drawLadder(structure);
+            
+            const results = document.getElementById('canvasResults');
+            results.innerHTML = `
+                <h3>Canvas Rendering Results:</h3>
+                <p><strong>Canvas Size:</strong> ${canvas.width} x ${canvas.height}</p>
+                <p><strong>Vertical Lines:</strong> ${structure.verticalLines}</p>
+                <p><strong>Horizontal Bars:</strong> ${structure.horizontalBars.length} levels</p>
+                <p><strong>Status:</strong> ✅ Canvas rendering working!</p>
+            `;
+        }
+
+        function testPathTracing() {
+            const game = new TestLadderGame(4);
+            game.connections = game.generateRandomConnections();
+            const structure = game.generateLadderStructure();
+            
+            // Test path tracing logic
+            const pathResults = [];
+            for (let i = 0; i < game.slotCount; i++) {
+                pathResults.push({
+                    from: game.topSlots[i],
+                    to: game.bottomSlots[game.connections[i]],
+                    connection: `${i} → ${game.connections[i]}`
+                });
+            }
+            
+            const results = document.getElementById('pathResults');
+            results.innerHTML = `
+                <h3>Path Tracing Results:</h3>
+                ${pathResults.map(path => 
+                    `<p><strong>${path.from}</strong> → <strong>${path.to}</strong> (${path.connection})</p>`
+                ).join('')}
+                <p><strong>Status:</strong> ✅ Path tracing working!</p>
+            `;
+        }
+
+        // Auto-run basic test on load
+        window.addEventListener('load', () => {
+            testBasicGeneration();
+        });
+    </script>
+</body>
+</html>

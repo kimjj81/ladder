@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save/Load Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { margin: 5px; padding: 10px; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Save/Load Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>Storage Manager Test</h2>
+        <button onclick="testStorageManager()">Test Storage Manager</button>
+        <button onclick="testSaveGame()">Test Save Game</button>
+        <button onclick="testLoadGame()">Test Load Game</button>
+        <button onclick="testGetAllGames()">Test Get All Games</button>
+        <button onclick="testDeleteGame()">Test Delete Game</button>
+        <div id="storageResult" class="result"></div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script>
+        let storageManager;
+        let testGameId;
+
+        function log(message) {
+            const result = document.getElementById('storageResult');
+            result.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        function testStorageManager() {
+            try {
+                storageManager = new StorageManager();
+                log('✅ StorageManager created successfully');
+                log('Storage available: ' + storageManager.isStorageAvailable());
+            } catch (error) {
+                log('❌ StorageManager creation failed: ' + error.message);
+            }
+        }
+
+        function testSaveGame() {
+            if (!storageManager) {
+                log('❌ StorageManager not initialized');
+                return;
+            }
+
+            try {
+                const testGameData = {
+                    slotCount: 4,
+                    topSlots: ['참가자1', '참가자2', '참가자3', '참가자4'],
+                    bottomSlots: ['결과1', '결과2', '결과3', '결과4']
+                };
+
+                testGameId = storageManager.saveGame(testGameData, 'Test Game');
+                log('✅ Game saved successfully with ID: ' + testGameId);
+            } catch (error) {
+                log('❌ Save game failed: ' + error.message);
+            }
+        }
+
+        function testLoadGame() {
+            if (!storageManager || !testGameId) {
+                log('❌ StorageManager not initialized or no test game ID');
+                return;
+            }
+
+            try {
+                const loadedGame = storageManager.loadGame(testGameId);
+                log('✅ Game loaded successfully: ' + JSON.stringify(loadedGame, null, 2));
+            } catch (error) {
+                log('❌ Load game failed: ' + error.message);
+            }
+        }
+
+        function testGetAllGames() {
+            if (!storageManager) {
+                log('❌ StorageManager not initialized');
+                return;
+            }
+
+            try {
+                const allGames = storageManager.getAllSavedGames();
+                log('✅ All games retrieved: ' + allGames.length + ' games found');
+                allGames.forEach(game => {
+                    log('  - ' + game.name + ' (' + game.slotCount + ' slots)');
+                });
+            } catch (error) {
+                log('❌ Get all games failed: ' + error.message);
+            }
+        }
+
+        function testDeleteGame() {
+            if (!storageManager || !testGameId) {
+                log('❌ StorageManager not initialized or no test game ID');
+                return;
+            }
+
+            try {
+                storageManager.deleteGame(testGameId);
+                log('✅ Game deleted successfully');
+                testGameId = null;
+            } catch (error) {
+                log('❌ Delete game failed: ' + error.message);
+            }
+        }
+
+        // Auto-run basic test
+        window.onload = function() {
+            testStorageManager();
+        };
+    </script>
+</body>
+</html>

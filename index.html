@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="사다리타기 게임 - 랜덤 선택을 위한 재미있는 웹 게임">
+    <meta name="keywords" content="사다리타기, 게임, 랜덤선택, 웹게임">
+    <title>사다리타기 게임</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/ladder.css">
+    
+    <!-- Google Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Header with Ad Space -->
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-toggle" id="menuToggle">
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+            </button>
+            <h1 class="site-title">사다리타기 게임</h1>
+        </div>
+        <div id="header-ad" class="ad-container">
+            <!-- Header Banner Ad -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
+    </header>
+
+    <!-- Menu Backdrop -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar Menu -->
+        <nav class="sidebar" id="sidebar">
+            <ul class="menu-list">
+                <li><a href="#ladder-game" class="menu-item active">사다리타기</a></li>
+                <li><a href="#saved-games" class="menu-item">저장된 게임</a></li>
+                <li><a href="#about" class="menu-item">게임 설명</a></li>
+            </ul>
+            
+            <!-- Sidebar Ad (Desktop) -->
+            <div id="sidebar-ad" class="ad-container desktop-only">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                     data-ad-slot="0987654321"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content" id="mainContent">
+            <!-- Ladder Game Section -->
+            <section id="ladder-game-section" class="game-section active">
+                <h2>사다리타기 게임</h2>
+                <div class="game-container">
+                    <!-- Ladder Game Setup Interface -->
+                    <div class="ladder-setup" id="ladderSetup">
+                        <h3 class="setup-title">🎯 게임 설정</h3>
+                        <p class="setup-description">참가자 수를 입력하고 사다리타기를 시작해보세요!</p>
+                        
+                        <form class="setup-form" id="setupForm">
+                            <div class="form-group">
+                                <label for="slotCount" class="form-label">
+                                    <span class="label-icon">👥</span>
+                                    참가자 수 (2-20명)
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="slotCount" 
+                                    class="form-input slot-count-input" 
+                                    min="2" 
+                                    max="20" 
+                                    placeholder="참가자 수를 입력하세요"
+                                    required
+                                >
+                                <div class="error-message" id="slotCountError"></div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary setup-btn">
+                                    <span class="btn-icon">🚀</span>
+                                    게임 시작하기
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Dynamic Slots Container (Hidden initially) -->
+                    <div class="slots-setup" id="slotsSetup" style="display: none;">
+                        <h3 class="slots-title">✏️ 참가자 및 결과 입력</h3>
+                        
+                        <div class="slots-section">
+                            <h4 class="slots-section-title">👆 참가자 (위쪽)</h4>
+                            <div class="slots-container" id="topSlots">
+                                <!-- Top slots will be generated dynamically -->
+                            </div>
+                        </div>
+                        
+                        <div class="slots-section">
+                            <h4 class="slots-section-title">👇 결과 (아래쪽)</h4>
+                            <div class="slots-container" id="bottomSlots">
+                                <!-- Bottom slots will be generated dynamically -->
+                            </div>
+                        </div>
+                        
+                        <div class="slots-actions">
+                            <button type="button" class="btn btn-secondary" id="resetSetupBtn">
+                                <span class="btn-icon">🔄</span>
+                                다시 설정
+                            </button>
+                            <button type="button" class="btn btn-success" id="saveGameBtn" disabled>
+                                <span class="btn-icon">💾</span>
+                                게임 저장
+                            </button>
+                            <button type="button" class="btn btn-info" id="randomizeBtn" disabled>
+                                <span class="btn-icon">🎯</span>
+                                다시 섞기
+                            </button>
+                            <button type="button" class="btn btn-primary" id="startGameBtn" disabled>
+                                <span class="btn-icon">🎲</span>
+                                사다리 생성하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Saved Games Section -->
+            <section id="saved-games-section" class="game-section">
+                <h2>저장된 게임</h2>
+                <div class="saved-games-header">
+                    <div class="saved-games-stats">
+                        <span id="savedGamesCount">0개의 저장된 게임</span>
+                        <span id="storageUsage">저장공간: 0%</span>
+                    </div>
+                    <div class="saved-games-actions">
+                        <button type="button" class="btn btn-secondary btn-sm" id="refreshSavedGamesBtn">
+                            <span class="btn-icon">🔄</span>
+                            새로고침
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" id="clearAllGamesBtn">
+                            <span class="btn-icon">🗑️</span>
+                            모두 삭제
+                        </button>
+                    </div>
+                </div>
+                <div class="saved-games-container" id="savedGamesContainer">
+                    <!-- Saved games list will be inserted here -->
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about-section" class="game-section">
+                <h2>게임 설명</h2>
+                <div class="about-content">
+                    <p>사다리타기는 여러 선택지 중에서 랜덤하게 하나를 선택할 때 사용하는 재미있는 게임입니다.</p>
+                    <p>상단에 선택할 항목들을, 하단에 결과들을 입력하고 사다리를 그려서 결과를 확인해보세요!</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer with Ad Space -->
+    <footer class="footer">
+        <div id="footer-ad" class="ad-container">
+            <!-- Footer Banner Ad -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="1122334455"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
+        <div class="footer-content">
+            <p>&copy; 2025 사다리타기 게임. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="js/error-handler.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/ladder-game.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/saved-games-manager.js"></script>
+    
+    <!-- Test Script (remove in production) -->
+    <script src="test-slot-editing-enhanced.js"></script>
+</body>
+</html>
