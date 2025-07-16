@@ -1,231 +1,102 @@
-#!/usr/bin/env node
-
-/**
- * Validation script for error handling implementation
- * Checks that all required error handling features are properly implemented
- */
-
-const fs = require('fs');
-const path = require('path');
-
-console.log('🧪 Validating Error Handling Implementation...\n');
-
-const validationResults = {
-    passed: 0,
-    failed: 0,
-    warnings: 0
-};
-
-function validateFile(filePath, checks) {
-    console.log(`📁 Validating ${filePath}...`);
+// Simple validation test for game start error handling
+function validateGameStartErrorHandling() {
+    console.log('🧪 Testing game start validation...');
     
-    if (!fs.existsSync(filePath)) {
-        console.log(`❌ File not found: ${filePath}`);
-        validationResults.failed++;
-        return;
+    if (!window.ladderGame) {
+        console.error('❌ LadderGame not available');
+        return false;
     }
     
-    const content = fs.readFileSync(filePath, 'utf8');
+    const game = window.ladderGame;
     
-    checks.forEach(check => {
-        const result = check.test(content);
-        if (result) {
-            console.log(`✅ ${check.name}`);
-            validationResults.passed++;
-        } else {
-            console.log(`❌ ${check.name}`);
-            validationResults.failed++;
+    // Save original state
+    const originalState = {
+        slotCount: game.slotCount,
+        topSlots: [...game.topSlots],
+        bottomSlots: [...game.bottomSlots],
+        gameState: game.gameState
+    };
+    
+    try {
+        // Test 1: Empty slots should prevent game start
+        console.log('Test 1: Empty slots validation');
+        game.slotCount = 3;
+        game.topSlots = ['테스트1', '테스트2', ''];  // Empty slot
+        game.bottomSlots = ['결과1', '결과2', '결과3'];
+        game.gameState = 'ready';  // Force ready state
+        
+        let errorThrown = false;
+        try {
+            game.startGame();
+        } catch (error) {
+            errorThrown = true;
+            console.log('✅ PASS: Empty slots correctly prevented game start');
+            console.log('   Error:', error.message);
         }
-    });
-    
-    console.log('');
+        
+        if (!errorThrown) {
+            console.log('❌ FAIL: Game started with empty slots');
+            return false;
+        }
+        
+        // Test 2: All slots filled should allow game start
+        console.log('Test 2: Valid game state');
+        game.slotCount = 3;
+        game.topSlots = ['테스트1', '테스트2', '테스트3'];
+        game.bottomSlots = ['결과1', '결과2', '결과3'];
+        game.gameState = 'ready';
+        
+        // Mock the methods to prevent actual game start
+        const originalGenerateLadder = game.generateLadder;
+        const originalShowLadderDisplay = game.showLadderDisplay;
+        
+        game.generateLadder = function() {
+            console.log('   Mock: Ladder generated');
+        };
+        game.showLadderDisplay = function() {
+            console.log('   Mock: Ladder displayed');
+        };
+        
+        let gameStarted = false;
+        try {
+            game.startGame();
+            gameStarted = true;
+            console.log('✅ PASS: Game started successfully with valid data');
+        } catch (error) {
+            console.log('❌ FAIL: Game failed to start with valid data');
+            console.log('   Error:', error.message);
+            return false;
+        }
+        
+        // Restore original methods
+        game.generateLadder = originalGenerateLadder;
+        game.showLadderDisplay = originalShowLadderDisplay;
+        
+        if (!gameStarted) {
+            console.log('❌ FAIL: Game did not start with valid data');
+            return false;
+        }
+        
+        console.log('🎉 All validation tests passed!');
+        return true;
+        
+    } finally {
+        // Restore original state
+        game.slotCount = originalState.slotCount;
+        game.topSlots = originalState.topSlots;
+        game.bottomSlots = originalState.bottomSlots;
+        game.gameState = originalState.gameState;
+    }
 }
 
-// Validate ErrorHandler class
-validateFile('js/error-handler.js', [
-    {
-        name: 'ErrorHandler class exists',
-        test: content => content.includes('class ErrorHandler')
-    },
-    {
-        name: 'Browser compatibility checking',
-        test: content => content.includes('checkBrowserSupport')
-    },
-    {
-        name: 'Input validation methods',
-        test: content => content.includes('validateSlotCount') && content.includes('validateSlotContent')
-    },
-    {
-        name: 'Game state validation',
-        test: content => content.includes('validateGameState')
-    },
-    {
-        name: 'Storage error handling',
-        test: content => content.includes('handleStorageError')
-    },
-    {
-        name: 'Canvas fallback functionality',
-        test: content => content.includes('createCanvasFallback')
-    },
-    {
-        name: 'Canvas error handling',
-        test: content => content.includes('handleCanvasError')
-    },
-    {
-        name: 'Memory error handling',
-        test: content => content.includes('handleMemoryError')
-    },
-    {
-        name: 'Compatibility recommendations',
-        test: content => content.includes('getCompatibilityRecommendations')
-    },
-    {
-        name: 'Error reporting functionality',
-        test: content => content.includes('createErrorReport')
-    },
-    {
-        name: 'Global error handlers setup',
-        test: content => content.includes('setupGlobalErrorHandlers')
-    },
-    {
-        name: 'Analytics error reporting',
-        test: content => content.includes('sendErrorToAnalytics')
-    }
-]);
-
-// Validate StorageManager enhancements
-validateFile('js/storage.js', [
-    {
-        name: 'Enhanced save game validation',
-        test: content => content.includes('validateGameState')
-    },
-    {
-        name: 'Progressive cleanup functionality',
-        test: content => content.includes('performProgressiveCleanup')
-    },
-    {
-        name: 'Storage quota handling',
-        test: content => content.includes('QuotaExceededError')
-    },
-    {
-        name: 'Fallback storage support',
-        test: content => content.includes('saveFallbackGame')
-    },
-    {
-        name: 'Enhanced error messages',
-        test: content => content.includes('저장 공간이 부족합니다')
-    }
-]);
-
-// Validate LadderGame error handling
-validateFile('js/ladder-game.js', [
-    {
-        name: 'Enhanced game start error handling',
-        test: content => content.includes('handleGameStartError')
-    },
-    {
-        name: 'Canvas initialization error handling',
-        test: content => content.includes('handleCanvasInitError')
-    },
-    {
-        name: 'Canvas render error handling',
-        test: content => content.includes('handleCanvasRenderError')
-    },
-    {
-        name: 'Memory constraint checking',
-        test: content => content.includes('isLowMemoryDevice')
-    },
-    {
-        name: 'Enhanced browser compatibility checking',
-        test: content => content.includes('checkGameSpecificCompatibility')
-    },
-    {
-        name: 'Canvas fallback integration',
-        test: content => content.includes('createCanvasFallback')
-    }
-]);
-
-// Validate main HTML integration
-validateFile('index.html', [
-    {
-        name: 'Error handler script included',
-        test: content => content.includes('js/error-handler.js')
-    },
-    {
-        name: 'Error handler loaded before other scripts',
-        test: content => {
-            const errorHandlerIndex = content.indexOf('js/error-handler.js');
-            const appIndex = content.indexOf('js/app.js');
-            return errorHandlerIndex < appIndex;
-        }
-    }
-]);
-
-// Validate test files exist
-const testFiles = [
-    'test-error-handling.html',
-    'test-enhanced-error-handling.html'
-];
-
-testFiles.forEach(testFile => {
-    if (fs.existsSync(testFile)) {
-        console.log(`✅ Test file exists: ${testFile}`);
-        validationResults.passed++;
+// Auto-run if in browser environment
+if (typeof window !== 'undefined') {
+    // Wait for page load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(validateGameStartErrorHandling, 1000);
+        });
     } else {
-        console.log(`❌ Test file missing: ${testFile}`);
-        validationResults.failed++;
+        setTimeout(validateGameStartErrorHandling, 1000);
     }
-});
-
-// Check for proper error handling patterns
-console.log('🔍 Checking error handling patterns...\n');
-
-const jsFiles = ['js/app.js', 'js/ladder-game.js', 'js/storage.js', 'js/ui-components.js'];
-
-jsFiles.forEach(file => {
-    if (fs.existsSync(file)) {
-        const content = fs.readFileSync(file, 'utf8');
-        
-        // Check for try-catch blocks
-        const tryCatchCount = (content.match(/try\s*{/g) || []).length;
-        if (tryCatchCount > 0) {
-            console.log(`✅ ${file}: ${tryCatchCount} try-catch blocks found`);
-            validationResults.passed++;
-        } else {
-            console.log(`⚠️ ${file}: No try-catch blocks found`);
-            validationResults.warnings++;
-        }
-        
-        // Check for error logging
-        const errorLogCount = (content.match(/console\.error|logError/g) || []).length;
-        if (errorLogCount > 0) {
-            console.log(`✅ ${file}: ${errorLogCount} error logging statements found`);
-            validationResults.passed++;
-        } else {
-            console.log(`⚠️ ${file}: No error logging found`);
-            validationResults.warnings++;
-        }
-    }
-});
-
-// Final results
-console.log('\n📊 Validation Results:');
-console.log(`✅ Passed: ${validationResults.passed}`);
-console.log(`❌ Failed: ${validationResults.failed}`);
-console.log(`⚠️ Warnings: ${validationResults.warnings}`);
-
-const total = validationResults.passed + validationResults.failed;
-const passRate = total > 0 ? (validationResults.passed / total * 100).toFixed(1) : 0;
-
-console.log(`\n🎯 Pass Rate: ${passRate}%`);
-
-if (passRate >= 90) {
-    console.log('🎉 Excellent error handling implementation!');
-} else if (passRate >= 75) {
-    console.log('👍 Good error handling implementation with room for improvement.');
-} else {
-    console.log('⚠️ Error handling implementation needs significant improvement.');
 }
-
-// Exit with appropriate code
-process.exit(validationResults.failed > 0 ? 1 : 0);

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Start Validation Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+        .test-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0.5rem;
+            font-weight: 600;
+        }
+        .test-results {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Game Start Validation Test</h1>
+        <p>이 테스트는 빈 슬롯이 있을 때 게임 시작이 올바르게 차단되는지 확인합니다.</p>
+        
+        <button class="test-button" onclick="runValidationTest()">
+            🚀 Validation Test 실행
+        </button>
+        
+        <div id="testResults" class="test-results hidden"></div>
+        
+        <!-- Hidden game elements for testing -->
+        <div class="hidden">
+            <div id="ladderSetup"></div>
+            <div id="slotsSetup"></div>
+            <div id="topSlots"></div>
+            <div id="bottomSlots"></div>
+            <button id="startGameBtn"></button>
+        </div>
+    </div>
+
+    <!-- Include necessary scripts -->
+    <script src="js/error-handler.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/ladder-game.js"></script>
+
+    <script>
+        let testResults = '';
+        
+        function log(message) {
+            testResults += message + '\n';
+            console.log(message);
+        }
+        
+        function runValidationTest() {
+            testResults = '';
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.classList.remove('hidden');
+            resultsDiv.textContent = 'Running tests...\n';
+            
+            setTimeout(() => {
+                try {
+                    log('🧪 Starting Game Start Validation Test');
+                    log('=====================================');
+                    
+                    if (!window.ladderGame) {
+                        log('❌ ERROR: LadderGame not initialized');
+                        resultsDiv.textContent = testResults;
+                        return;
+                    }
+                    
+                    const game = window.ladderGame;
+                    
+                    // Test 1: Empty slots should prevent game start
+                    log('\n📋 Test 1: Empty Slots Validation');
+                    log('Setting up game with empty slot...');
+                    
+                    game.slotCount = 3;
+                    game.topSlots = ['참가자1', '참가자2', ''];  // Empty slot
+                    game.bottomSlots = ['결과1', '결과2', '결과3'];
+                    game.gameState = 'ready';  // Force ready state
+                    
+                    let test1Passed = false;
+                    try {
+                        game.startGame();
+                        log('❌ FAIL: Game started with empty slots (should have been blocked)');
+                    } catch (error) {
+                        test1Passed = true;
+                        log('✅ PASS: Empty slots correctly prevented game start');
+                        log('   Error message: ' + error.message);
+                    }
+                    
+                    // Test 2: Valid game state should allow start
+                    log('\n📋 Test 2: Valid Game State');
+                    log('Setting up game with all slots filled...');
+                    
+                    game.slotCount = 3;
+                    game.topSlots = ['참가자1', '참가자2', '참가자3'];
+                    game.bottomSlots = ['결과1', '결과2', '결과3'];
+                    game.gameState = 'ready';
+                    
+                    // Mock methods to prevent actual game execution
+                    const originalMethods = {
+                        generateLadder: game.generateLadder,
+                        showLadderDisplay: game.showLadderDisplay,
+                        showLoadingState: game.showLoadingState,
+                        hideLoadingState: game.hideLoadingState,
+                        showSuccessMessage: game.showSuccessMessage
+                    };
+                    
+                    game.generateLadder = () => log('   Mock: generateLadder() called');
+                    game.showLadderDisplay = () => log('   Mock: showLadderDisplay() called');
+                    game.showLoadingState = () => {};
+                    game.hideLoadingState = () => {};
+                    game.showSuccessMessage = () => {};
+                    
+                    let test2Passed = false;
+                    try {
+                        game.startGame();
+                        test2Passed = true;
+                        log('✅ PASS: Game started successfully with valid data');
+                    } catch (error) {
+                        log('❌ FAIL: Game failed to start with valid data');
+                        log('   Error message: ' + error.message);
+                    }
+                    
+                    // Restore original methods
+                    Object.assign(game, originalMethods);
+                    
+                    // Summary
+                    log('\n🎯 Test Summary');
+                    log('===============');
+                    const passedTests = (test1Passed ? 1 : 0) + (test2Passed ? 1 : 0);
+                    log(`Passed: ${passedTests}/2 tests`);
+                    
+                    if (passedTests === 2) {
+                        log('🎉 ALL TESTS PASSED! Game start validation is working correctly.');
+                    } else {
+                        log('⚠️  Some tests failed. Game start validation needs attention.');
+                    }
+                    
+                } catch (error) {
+                    log('❌ ERROR during testing: ' + error.message);
+                    log('Stack trace: ' + error.stack);
+                }
+                
+                resultsDiv.textContent = testResults;
+            }, 500);
+        }
+        
+        // Auto-run test when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.ladderGame) {
+                    log('✅ LadderGame initialized successfully');
+                } else {
+                    log('❌ LadderGame not found');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

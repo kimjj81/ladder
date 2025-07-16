@@ -1289,10 +1289,23 @@ class LadderGame {
         try {
             if (this.gameState !== 'ready') {
                 console.log('Game not ready to start');
-                return;
+                throw new Error('게임이 시작할 준비가 되지 않았습니다');
             }
 
-            // Enhanced validation using error handler
+            // Always validate game state, even without error handler
+            const allTopFilled = this.topSlots.every(slot => slot && slot.trim() !== '');
+            const allBottomFilled = this.bottomSlots.every(slot => slot && slot.trim() !== '');
+            
+            if (!allTopFilled || !allBottomFilled) {
+                const emptyTopSlots = this.topSlots.filter(slot => !slot || slot.trim() === '').length;
+                const emptyBottomSlots = this.bottomSlots.filter(slot => !slot || slot.trim() === '').length;
+                const errorMessage = `게임을 시작할 수 없습니다. ${emptyTopSlots + emptyBottomSlots}개의 빈 슬롯이 있습니다.`;
+                
+                this.showErrorMessage(errorMessage);
+                throw new Error(errorMessage);
+            }
+
+            // Enhanced validation using error handler if available
             if (this.errorHandler) {
                 const gameData = {
                     slotCount: this.slotCount,
@@ -1309,7 +1322,7 @@ class LadderGame {
                     
                     if (errorMessages.length > 0) {
                         this.showErrorMessage(errorMessages[0]);
-                        return;
+                        throw new Error(errorMessages[0]);
                     }
                 }
 
