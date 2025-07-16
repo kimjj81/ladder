@@ -104,12 +104,12 @@ deploy_files() {
     cp -r "$BUILD_DIR"/* "$WEB_ROOT/$PROJECT_NAME/"
     
     # Copy additional files
-    if [[ -f "build/robots.txt" ]]; then
-        cp "build/robots.txt" "$WEB_ROOT/$PROJECT_NAME/"
+    if [[ -f "deploy/robots.txt" ]]; then
+        cp "deploy/robots.txt" "$WEB_ROOT/$PROJECT_NAME/"
     fi
     
-    if [[ -f "build/sitemap.xml" ]]; then
-        cp "build/sitemap.xml" "$WEB_ROOT/$PROJECT_NAME/"
+    if [[ -f "deploy/sitemap.xml" ]]; then
+        cp "deploy/sitemap.xml" "$WEB_ROOT/$PROJECT_NAME/"
     fi
     
     # Set proper permissions
@@ -133,15 +133,15 @@ configure_nginx() {
     fi
     
     # Copy nginx configuration
-    if [[ -f "build/nginx.conf" ]]; then
-        cp "build/nginx.conf" "$NGINX_SITES_AVAILABLE/$PROJECT_NAME"
+    if [[ -f "deploy/nginx.conf" ]]; then
+        cp "deploy/nginx.conf" "$NGINX_SITES_AVAILABLE/$PROJECT_NAME"
         
         # Enable site
         ln -sf "$NGINX_SITES_AVAILABLE/$PROJECT_NAME" "$NGINX_SITES_ENABLED/$PROJECT_NAME"
         
         success "Nginx configuration installed"
     else
-        error "Nginx configuration file not found at build/nginx.conf"
+        error "Nginx configuration file not found at deploy/nginx.conf"
         exit 1
     fi
 }
