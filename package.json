@@ -6,12 +6,12 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "build": "node build/build.js",
+    "build": "node deploy/build.js",
     "build:clean": "rm -rf dist && mkdir -p dist",
-    "build:test": "npm run build && node build/test-deployment.js",
+    "build:test": "npm run build && node deploy/test-deployment.js",
     "serve": "http-server dist -p 8080 -c-1",
     "serve:dev": "http-server . -p 8080 -c-1",
-    "deploy:test": "node build/test-deployment.js"
+    "deploy:test": "node deploy/test-deployment.js"
   },
   "keywords": ["ladder-game", "korean", "web-game", "static"],
   "author": "",
