@@ -40,11 +40,11 @@ cd ladder-game
 ### 2단계: 자동 배포 실행
 ```bash
 # 전체 배포 (빌드 + 배포)
-sudo ./build/deploy.sh
+sudo ./deploy/deploy.sh
 
 # 또는 단계별 실행
-sudo ./build/deploy.sh build-only    # 빌드만
-sudo ./build/deploy.sh deploy-only   # 배포만
+sudo ./deploy/deploy.sh build-only    # 빌드만
+sudo ./deploy/deploy.sh deploy-only   # 배포만
 ```
 
 ### 3단계: 확인
@@ -113,8 +113,8 @@ sudo mkdir -p /var/www/html/ladder-game
 sudo cp -r dist/* /var/www/html/ladder-game/
 
 # 추가 파일 복사
-sudo cp build/robots.txt /var/www/html/ladder-game/
-sudo cp build/sitemap.xml /var/www/html/ladder-game/
+sudo cp deploy/robots.txt /var/www/html/ladder-game/
+sudo cp deploy/sitemap.xml /var/www/html/ladder-game/
 
 # 권한 설정
 sudo chown -R www-data:www-data /var/www/html/ladder-game
@@ -124,7 +124,7 @@ sudo chmod -R 755 /var/www/html/ladder-game
 ### 4단계: Nginx 설정
 ```bash
 # Nginx 설정 파일 복사
-sudo cp build/nginx.conf /etc/nginx/sites-available/ladder-game
+sudo cp deploy/nginx.conf /etc/nginx/sites-available/ladder-game
 
 # 사이트 활성화
 sudo ln -s /etc/nginx/sites-available/ladder-game /etc/nginx/sites-enabled/
