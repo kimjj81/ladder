@@ -126,24 +126,34 @@ configure_nginx() {
     # Create backup directory
     mkdir -p "$BACKUP_DIR"
     
-    # Backup existing configuration if it exists
-    if [[ -f "$NGINX_SITES_AVAILABLE/$PROJECT_NAME" ]]; then
-        cp "$NGINX_SITES_AVAILABLE/$PROJECT_NAME" "$BACKUP_DIR/${PROJECT_NAME}.$(date +%Y%m%d_%H%M%S).bak"
-        warning "Existing configuration backed up"
+    # Backup existing default configuration
+    if [[ -f "/etc/nginx/sites-available/default" ]]; then
+        cp "/etc/nginx/sites-available/default" "$BACKUP_DIR/default.$(date +%Y%m%d_%H%M%S).bak"
+        warning "Existing default configuration backed up"
     fi
     
-    # Copy nginx configuration
-    if [[ -f "deploy/nginx.conf" ]]; then
-        cp "deploy/nginx.conf" "$NGINX_SITES_AVAILABLE/$PROJECT_NAME"
-        
-        # Enable site
-        ln -sf "$NGINX_SITES_AVAILABLE/$PROJECT_NAME" "$NGINX_SITES_ENABLED/$PROJECT_NAME"
-        
-        success "Nginx configuration installed"
-    else
-        error "Nginx configuration file not found at deploy/nginx.conf"
-        exit 1
+    # Check if ladder location already exists in default config
+    if grep -q "location /ladder/" "/etc/nginx/sites-available/default"; then
+        warning "Ladder game location already exists in nginx config"
+        return 0
     fi
+    
+    # Manual configuration required
+    warning "⚠️  MANUAL CONFIGURATION REQUIRED ⚠️"
+    echo
+    echo "The ladder game location blocks need to be manually added to your existing HTTPS server block."
+    echo "Please add the following location blocks to your HTTPS server block in /etc/nginx/sites-available/default:"
+    echo
+    echo "Add these INSIDE the existing HTTPS server block (after the /kibana/ location):"
+    echo "----------------------------------------"
+    cat deploy/nginx.conf
+    echo "----------------------------------------"
+    echo
+    echo "After adding the location blocks, run: sudo nginx -t && sudo systemctl reload nginx"
+    echo
+    read -p "Press Enter after you have manually added the configuration..."
+    
+    success "Manual nginx configuration step completed"
 }
 
 # Test and reload Nginx
