@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta name="description" content="사다리타기 게임 - 랜덤 선택을 위한 재미있는 웹 게임">
     <meta name="keywords" content="사다리타기, 게임, 랜덤선택, 웹게임">
     <title>사다리타기 게임</title>
-    
+    <meta name="google-adsense-account" content="ca-pub-1535530089295655">
+
     <!-- CSS Files -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/ladder.css">
-    
+
     <!-- Google Ads -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-            crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1535530089295655"
+        crossorigin="anonymous"></script>
 </head>
+
 <body>
     <!-- Header with Ad Space -->
     <header class="header">
@@ -29,12 +33,8 @@
         </div>
         <div id="header-ad" class="ad-container">
             <!-- Header Banner Ad -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                 data-ad-slot="1234567890"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1535530089295655"
+                data-ad-slot="1234567890" data-ad-format="auto" data-full-width-responsive="true"></ins>
         </div>
     </header>
 
@@ -50,15 +50,11 @@
                 <li><a href="#saved-games" class="menu-item">저장된 게임</a></li>
                 <li><a href="#about" class="menu-item">게임 설명</a></li>
             </ul>
-            
+
             <!-- Sidebar Ad (Desktop) -->
             <div id="sidebar-ad" class="ad-container desktop-only">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                     data-ad-slot="0987654321"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1535530089295655"
+                    data-ad-slot="0987654321" data-ad-format="auto" data-full-width-responsive="true"></ins>
             </div>
         </nav>
 
@@ -72,25 +68,18 @@
                     <div class="ladder-setup" id="ladderSetup">
                         <h3 class="setup-title">🎯 게임 설정</h3>
                         <p class="setup-description">참가자 수를 입력하고 사다리타기를 시작해보세요!</p>
-                        
+
                         <form class="setup-form" id="setupForm">
                             <div class="form-group">
                                 <label for="slotCount" class="form-label">
                                     <span class="label-icon">👥</span>
                                     참가자 수 (2-20명)
                                 </label>
-                                <input 
-                                    type="number" 
-                                    id="slotCount" 
-                                    class="form-input slot-count-input" 
-                                    min="2" 
-                                    max="20" 
-                                    placeholder="참가자 수를 입력하세요"
-                                    required
-                                >
+                                <input type="number" id="slotCount" class="form-input slot-count-input" min="2" max="20"
+                                    placeholder="참가자 수를 입력하세요" required>
                                 <div class="error-message" id="slotCountError"></div>
                             </div>
-                            
+
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary setup-btn">
                                     <span class="btn-icon">🚀</span>
@@ -103,21 +92,21 @@
                     <!-- Dynamic Slots Container (Hidden initially) -->
                     <div class="slots-setup" id="slotsSetup" style="display: none;">
                         <h3 class="slots-title">✏️ 참가자 및 결과 입력</h3>
-                        
+
                         <div class="slots-section">
                             <h4 class="slots-section-title">👆 참가자 (위쪽)</h4>
                             <div class="slots-container" id="topSlots">
                                 <!-- Top slots will be generated dynamically -->
                             </div>
                         </div>
-                        
+
                         <div class="slots-section">
                             <h4 class="slots-section-title">👇 결과 (아래쪽)</h4>
                             <div class="slots-container" id="bottomSlots">
                                 <!-- Bottom slots will be generated dynamically -->
                             </div>
                         </div>
-                        
+
                         <div class="slots-actions">
                             <button type="button" class="btn btn-secondary" id="resetSetupBtn">
                                 <span class="btn-icon">🔄</span>
@@ -179,12 +168,8 @@
     <footer class="footer">
         <div id="footer-ad" class="ad-container">
             <!-- Footer Banner Ad -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                 data-ad-slot="1122334455"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1535530089295655"
+                data-ad-slot="1122334455" data-ad-format="auto" data-full-width-responsive="true"></ins>
         </div>
         <div class="footer-content">
             <p>&copy; 2025 사다리타기 게임. All rights reserved.</p>
@@ -198,8 +183,9 @@
     <script src="js/storage.js"></script>
     <script src="js/ui-components.js"></script>
     <script src="js/saved-games-manager.js"></script>
-    
+
     <!-- Test Script (remove in production) -->
     <script src="test-slot-editing-enhanced.js"></script>
 </body>
+
 </html>
