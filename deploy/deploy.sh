@@ -211,7 +211,7 @@ show_info() {
     echo "🔧 Backup location: $BACKUP_DIR"
     echo
     echo "🌐 Your site should now be available at:"
-    echo "   http://your-domain.com"
+    echo "   http://windroamer.com"
     echo "   http://$(hostname -I | awk '{print $1}')"
     echo
     echo "📋 Next steps:"
