@@ -73,11 +73,26 @@ class SlotInput {
     setupEventListeners() {
         if (!this.inputBox) return;
 
-        // Enter key handling
+        // Track composition state for Korean input
+        this.isComposing = false;
+
+        // Composition events for Korean input handling
+        this.inputBox.addEventListener('compositionstart', () => {
+            this.isComposing = true;
+        });
+
+        this.inputBox.addEventListener('compositionend', () => {
+            this.isComposing = false;
+        });
+
+        // Enter key handling with Korean input support
         this.inputBox.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.handleEnterPress();
+                // Only handle Enter if not composing Korean text
+                if (!this.isComposing) {
+                    this.handleEnterPress();
+                }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 this.moveToPreviousSlot();
@@ -425,30 +440,84 @@ class SlotInput {
 
         this.inputBox.classList.add('error');
         
-        // Show error message
-        let errorDiv = this.container.querySelector('.input-error');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.className = 'input-error';
-            this.inputBox.parentNode.appendChild(errorDiv);
-        }
+        // Remove existing error messages first
+        const existingErrors = this.container.querySelectorAll('.input-error');
+        existingErrors.forEach(error => error.remove());
         
+        // Show error message with fixed positioning to prevent layout shift
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'input-error';
         errorDiv.textContent = message;
+        
+        // Position relative to the input container to prevent layout shifts
+        const inputRect = this.inputBox.getBoundingClientRect();
+        const containerRect = this.container.getBoundingClientRect();
+        
         errorDiv.style.cssText = `
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
             color: #dc3545;
             font-size: 0.875rem;
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            background: rgba(220, 53, 69, 0.1);
-            border-radius: 4px;
-            border-left: 3px solid #dc3545;
+            margin-top: 0.25rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.95) 0%, rgba(255, 107, 157, 0.95) 100%);
+            color: white;
+            border-radius: var(--radius-medium);
+            border-left: 4px solid #dc3545;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            animation: errorSlideIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 100%;
+            word-wrap: break-word;
         `;
         
-        // Remove error after 3 seconds
+        // Make input container relative for absolute positioning
+        this.inputBox.parentNode.style.position = 'relative';
+        this.inputBox.parentNode.appendChild(errorDiv);
+        
+        // Add error animation styles if not already added
+        if (!document.querySelector('#error-animation-styles')) {
+            const style = document.createElement('style');
+            style.id = 'error-animation-styles';
+            style.textContent = `
+                @keyframes errorSlideIn {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(-10px) scale(0.9);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+                @keyframes errorSlideOut {
+                    0% {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translateY(-10px) scale(0.9);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Remove error after 3 seconds with animation
         setTimeout(() => {
             this.inputBox.classList.remove('error');
             if (errorDiv.parentNode) {
-                errorDiv.parentNode.removeChild(errorDiv);
+                errorDiv.style.animation = 'errorSlideOut 0.3s ease-in forwards';
+                setTimeout(() => {
+                    if (errorDiv.parentNode) {
+                        errorDiv.parentNode.removeChild(errorDiv);
+                    }
+                }, 300);
             }
         }, 3000);
     }
@@ -456,29 +525,78 @@ class SlotInput {
     showInputWarning(message) {
         if (!this.inputBox) return;
 
-        // Show warning message
-        let warningDiv = this.container.querySelector('.input-warning');
-        if (!warningDiv) {
-            warningDiv = document.createElement('div');
-            warningDiv.className = 'input-warning';
-            this.inputBox.parentNode.appendChild(warningDiv);
-        }
-        
+        // Remove existing warning messages first
+        const existingWarnings = this.container.querySelectorAll('.input-warning');
+        existingWarnings.forEach(warning => warning.remove());
+
+        // Show warning message with fixed positioning to prevent layout shift
+        const warningDiv = document.createElement('div');
+        warningDiv.className = 'input-warning';
         warningDiv.textContent = message;
+        
         warningDiv.style.cssText = `
-            color: #ffc107;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 999;
             font-size: 0.875rem;
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            background: rgba(255, 193, 7, 0.1);
-            border-radius: 4px;
-            border-left: 3px solid #ffc107;
+            margin-top: 0.25rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.95) 0%, rgba(255, 235, 59, 0.95) 100%);
+            color: #856404;
+            border-radius: var(--radius-medium);
+            border-left: 4px solid #ffc107;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            animation: warningSlideIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 100%;
+            word-wrap: break-word;
         `;
         
-        // Remove warning after 4 seconds
+        // Make input container relative for absolute positioning
+        this.inputBox.parentNode.style.position = 'relative';
+        this.inputBox.parentNode.appendChild(warningDiv);
+        
+        // Add warning animation styles if not already added
+        if (!document.querySelector('#warning-animation-styles')) {
+            const style = document.createElement('style');
+            style.id = 'warning-animation-styles';
+            style.textContent = `
+                @keyframes warningSlideIn {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(-10px) scale(0.9);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+                @keyframes warningSlideOut {
+                    0% {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translateY(-10px) scale(0.9);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Remove warning after 4 seconds with animation
         setTimeout(() => {
             if (warningDiv.parentNode) {
-                warningDiv.parentNode.removeChild(warningDiv);
+                warningDiv.style.animation = 'warningSlideOut 0.3s ease-in forwards';
+                setTimeout(() => {
+                    if (warningDiv.parentNode) {
+                        warningDiv.parentNode.removeChild(warningDiv);
+                    }
+                }, 300);
             }
         }, 4000);
     }

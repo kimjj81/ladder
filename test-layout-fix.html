@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Fix Test</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Test styles to visualize spacing */
+        .test-marker {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px dashed red;
+            padding: 5px;
+            margin: 2px 0;
+            font-size: 12px;
+            color: red;
+        }
+        
+        .spacing-test {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid green;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-marker">Header Start</div>
+    
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-toggle">
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+            </button>
+            <h1 class="site-title">사다리타기 게임</h1>
+        </div>
+        <!-- Header Ad -->
+        <div id="header-ad" class="ad-container">
+            <div class="test-marker">Header Ad Container (No margin)</div>
+        </div>
+    </header>
+    
+    <div class="test-marker">Header End / Main Start</div>
+    
+    <div class="main-container">
+        <main class="content">
+            <div class="spacing-test">
+                <h2>Main Content Area</h2>
+                <p>This tests the spacing between header and main content.</p>
+                <p>The header ad should have no margin, reducing white space.</p>
+            </div>
+        </main>
+    </div>
+    
+    <div class="test-marker">Main End / Footer Start</div>
+    
+    <footer class="footer">
+        <!-- Footer Ad -->
+        <div id="footer-ad" class="ad-container">
+            <div class="test-marker">Footer Ad Container (No margin)</div>
+        </div>
+        <div class="footer-content">
+            <p>&copy; 2025 사다리타기 게임. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <div class="test-marker">Footer End</div>
+    
+    <script>
+        // Test ad loading states
+        setTimeout(() => {
+            const headerAd = document.getElementById('header-ad');
+            const footerAd = document.getElementById('footer-ad');
+            
+            // Simulate loading state
+            headerAd.classList.add('ad-loading');
+            footerAd.classList.add('ad-loading');
+            
+            console.log('✅ Ad loading state applied');
+            
+            // Simulate loaded state after 3 seconds
+            setTimeout(() => {
+                headerAd.classList.remove('ad-loading');
+                headerAd.classList.add('ad-loaded');
+                footerAd.classList.remove('ad-loading');
+                footerAd.classList.add('ad-loaded');
+                
+                console.log('✅ Ad loaded state applied');
+            }, 3000);
+        }, 1000);
+        
+        // Test responsive behavior
+        function testResponsive() {
+            const width = window.innerWidth;
+            console.log(`Screen width: ${width}px`);
+            
+            const headerAd = document.getElementById('header-ad');
+            const footerAd = document.getElementById('footer-ad');
+            
+            const headerHeight = window.getComputedStyle(headerAd).minHeight;
+            const footerHeight = window.getComputedStyle(footerAd).minHeight;
+            
+            console.log(`Header ad min-height: ${headerHeight}`);
+            console.log(`Footer ad min-height: ${footerHeight}`);
+            
+            if (width < 768) {
+                console.log('✅ Mobile layout active');
+            } else if (width < 1024) {
+                console.log('✅ Tablet layout active');
+            } else {
+                console.log('✅ Desktop layout active');
+            }
+        }
+        
+        testResponsive();
+        window.addEventListener('resize', testResponsive);
+        
+        console.log('🎯 Layout fix test initialized');
+        console.log('Check for:');
+        console.log('1. No excessive white space between header and main');
+        console.log('2. Ad containers have no margins');
+        console.log('3. Responsive ad heights work correctly');
+        console.log('4. Ad loading states work properly');
+    </script>
+</body>
+</html>

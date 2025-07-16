@@ -89,3 +89,10 @@
   - Create deployment script or documentation for server setup
   - Test static file serving and caching configuration
   - _Requirements: 7.1, 7.2, 7.4_
+
+- [x] 14. Fix layout spacing and ad display issues
+  - Remove excessive white space between header and main content
+  - Fix ad container display and positioning issues
+  - Optimize ad loading to prevent layout shifts
+  - Remove or minimize ES6 compatibility warnings for better user experience
+  - _Requirements: 8.1, 8.2, 7.3_

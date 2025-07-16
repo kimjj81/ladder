@@ -106,8 +106,8 @@ class App {
         });
 
         // Handle ESC key to close menu
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.menuVisible) {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && this.menuVisible) {
                 this.toggleMenu();
             }
         });
@@ -217,10 +217,13 @@ class App {
         }
 
         try {
+            // Pre-set ad container heights to prevent layout shifts
+            this.presetAdContainerHeights();
+            
             // Initialize ads after a short delay to ensure DOM is ready
             setTimeout(() => {
                 this.loadAds();
-            }, 500);
+            }, 300);
             
             console.log('Google Ads initialized successfully');
         } catch (error) {
@@ -236,16 +239,65 @@ class App {
             try {
                 // Only push ads that haven't been initialized yet
                 if (!ad.hasAttribute('data-adsbygoogle-status')) {
+                    // Set minimum height to prevent layout shift
+                    const container = ad.closest('.ad-container');
+                    if (container) {
+                        // Lock the container height before ad loads
+                        const currentHeight = container.offsetHeight;
+                        container.style.minHeight = Math.max(currentHeight, 60) + 'px';
+                        
+                        // Add loading class for visual feedback
+                        container.classList.add('ad-loading');
+                    }
+                    
+                    // Push ad to AdSense queue
                     (window.adsbygoogle = window.adsbygoogle || []).push({});
-                    console.log(`Ad ${index + 1} loaded successfully`);
+                    
+                    // Monitor ad loading completion
+                    this.monitorAdLoading(ad, container, index);
                 }
             } catch (error) {
                 console.error(`Error loading ad ${index + 1}:`, error);
+                this.handleIndividualAdError(ad);
             }
         });
 
-        // Remove placeholder styling from ad containers
-        this.removeAdPlaceholders();
+        // Remove placeholder styling from ad containers after a delay
+        setTimeout(() => {
+            this.removeAdPlaceholders();
+        }, 2000);
+    }
+
+    monitorAdLoading(ad, container, index) {
+        // Monitor ad loading status
+        const checkAdStatus = () => {
+            const status = ad.getAttribute('data-adsbygoogle-status');
+            if (status === 'done') {
+                // Ad loaded successfully
+                if (container) {
+                    container.classList.remove('ad-loading');
+                    container.classList.add('ad-loaded');
+                }
+                console.log(`Ad ${index + 1} loaded successfully`);
+            } else if (status === 'error') {
+                // Ad failed to load
+                this.handleIndividualAdError(ad);
+            } else {
+                // Still loading, check again
+                setTimeout(checkAdStatus, 500);
+            }
+        };
+        
+        // Start monitoring after a short delay
+        setTimeout(checkAdStatus, 1000);
+        
+        // Fallback timeout to prevent infinite waiting
+        setTimeout(() => {
+            if (container && container.classList.contains('ad-loading')) {
+                container.classList.remove('ad-loading');
+                console.log(`Ad ${index + 1} loading timeout`);
+            }
+        }, 10000);
     }
 
     removeAdPlaceholders() {
@@ -262,6 +314,38 @@ class App {
         const adContainers = document.querySelectorAll('.ad-container');
         adContainers.forEach(container => {
             container.classList.add('ad-error');
+        });
+    }
+
+    handleIndividualAdError(ad) {
+        const container = ad.closest('.ad-container');
+        if (container) {
+            container.classList.add('ad-error');
+            console.log('Individual ad failed to load, showing error state');
+        }
+    }
+
+    presetAdContainerHeights() {
+        // Set initial heights for ad containers to prevent layout shifts
+        const adContainers = document.querySelectorAll('.ad-container');
+        adContainers.forEach(container => {
+            if (!container.style.minHeight) {
+                // Set appropriate heights based on container ID and screen size
+                const isMobile = window.innerWidth < 768;
+                
+                if (container.id === 'header-ad') {
+                    container.style.minHeight = isMobile ? '60px' : '90px';
+                } else if (container.id === 'sidebar-ad') {
+                    container.style.minHeight = isMobile ? '0px' : '200px';
+                } else if (container.id === 'footer-ad') {
+                    container.style.minHeight = isMobile ? '60px' : '90px';
+                } else {
+                    container.style.minHeight = isMobile ? '60px' : '90px';
+                }
+                
+                // Add loading state to prevent content jumping
+                container.style.transition = 'min-height 0.3s ease';
+            }
         });
     }
 
@@ -330,12 +414,10 @@ class App {
     setupSwipeGestures() {
         let startX = 0;
         let startY = 0;
-        let isSwipeGesture = false;
 
         document.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
-            isSwipeGesture = false;
         }, { passive: true });
 
         document.addEventListener('touchmove', (e) => {
@@ -348,8 +430,6 @@ class App {
 
             // Check if it's a horizontal swipe
             if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-                isSwipeGesture = true;
-                
                 // Swipe right to open menu (from left edge)
                 if (diffX < 0 && startX < 50 && !this.menuVisible) {
                     this.toggleMenu();
@@ -364,7 +444,6 @@ class App {
         document.addEventListener('touchend', () => {
             startX = 0;
             startY = 0;
-            isSwipeGesture = false;
         }, { passive: true });
     }
 

@@ -59,11 +59,11 @@
 /* Small mobile devices (375px and up) */
 @media (min-width: 375px) {
     .content {
-        padding: 1.25rem;
+        padding: 1rem;
     }
     
     .game-container {
-        padding: 2rem;
+        padding: 1.5rem;
     }
     
     .slot {
@@ -102,11 +102,11 @@
     }
     
     .content {
-        padding: 2rem;
+        padding: 1.5rem;
     }
     
     .game-container {
-        padding: 2.5rem;
+        padding: 2rem;
     }
     
     .game-section h2 {
@@ -126,17 +126,17 @@
     
     /* Ad containers larger on tablet */
     .ad-container {
-        min-height: 120px;
+        min-height: 100px;
     }
     
     /* Header ad adjustments for tablet */
     #header-ad {
-        min-height: 90px;
+        min-height: 80px;
     }
     
     /* Footer ad adjustments for tablet */
     #footer-ad {
-        min-height: 120px;
+        min-height: 100px;
     }
     
     /* Sidebar ad for tablet */
@@ -183,15 +183,15 @@
     /* Adjust content margin for desktop */
     .content {
         margin-left: 0;
-        padding: 3rem;
+        padding: 2rem;
     }
     
     .main-container {
-        gap: 2rem;
+        gap: 1.5rem;
     }
     
     .game-container {
-        padding: 3rem;
+        padding: 2.5rem;
     }
     
     .game-section h2 {
@@ -201,17 +201,17 @@
     
     /* Larger ad containers on desktop */
     .ad-container {
-        min-height: 150px;
+        min-height: 120px;
     }
     
     /* Header ad adjustments for desktop */
     #header-ad {
-        min-height: 120px;
+        min-height: 100px;
     }
     
     /* Footer ad adjustments for desktop */
     #footer-ad {
-        min-height: 150px;
+        min-height: 120px;
     }
     
     /* Sidebar ad for desktop */
@@ -252,11 +252,11 @@
     }
     
     .content {
-        padding: 4rem;
+        padding: 2.5rem;
     }
     
     .game-container {
-        padding: 4rem;
+        padding: 3rem;
         border-radius: 1.5rem;
     }
     
@@ -267,17 +267,17 @@
     
     /* Larger ad containers on large desktop */
     .ad-container {
-        min-height: 180px;
+        min-height: 140px;
     }
     
     /* Header ad adjustments for large desktop */
     #header-ad {
-        min-height: 150px;
+        min-height: 120px;
     }
     
     /* Footer ad adjustments for large desktop */
     #footer-ad {
-        min-height: 180px;
+        min-height: 140px;
     }
     
     /* Sidebar ad for large desktop */
@@ -602,16 +602,22 @@
 /* Improved ad container spacing for mobile */
 @media (max-width: 767px) {
     #header-ad {
-        margin: 0.25rem 0;
+        margin: 0;
+        min-height: 60px;
     }
     
     #footer-ad {
-        margin: 0.75rem 0 0 0;
+        margin: 0;
+        min-height: 60px;
     }
     
-    /* Ensure ads don't interfere with touch interactions */
+    /* Reduce ad container margins on mobile to minimize spacing */
     .ad-container {
+        margin: 0;
         pointer-events: auto;
+        /* Optimize for mobile performance */
+        contain: layout style;
+        will-change: auto;
     }
     
     .ad-container .adsbygoogle {
