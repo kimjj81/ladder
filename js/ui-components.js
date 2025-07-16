@@ -332,12 +332,16 @@ class SlotInput {
         if (currentSlot) {
             currentSlot.classList.add('active');
             
-            // Scroll into view if needed
-            currentSlot.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest',
-                inline: 'center'
-            });
+            // Only scroll if the element is not fully visible
+            const rect = currentSlot.getBoundingClientRect();
+            const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+            
+            if (!isVisible) {
+                currentSlot.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest'
+                });
+            }
         }
     }
 

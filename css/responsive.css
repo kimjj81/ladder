@@ -1,6 +1,68 @@
 /* Mobile First Responsive Design */
 
 /* Base mobile styles (320px and up) */
+@media (max-width: 767px) {
+    /* Hide desktop navigation on mobile */
+    .header-nav {
+        display: none;
+    }
+    
+    /* Ensure mobile menu toggle is visible */
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    /* Adjust header container for mobile */
+    .header-container {
+        padding: 1rem 1.5rem;
+        gap: 1rem;
+    }
+    
+    /* Adjust brand for mobile */
+    .brand-title {
+        font-size: 1.5rem;
+    }
+    
+    .brand-subtitle {
+        font-size: 0.75rem;
+    }
+    
+    /* Prevent layout shifts */
+    .main-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0;
+    }
+    
+    .content {
+        padding: 0.5rem;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .game-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 0 1rem 0;
+    }
+    
+    /* Prevent slots container from breaking layout */
+    .slots-setup {
+        width: 100%;
+        max-width: 100%;
+        margin: 1rem 0;
+        padding: 1rem;
+    }
+    
+    .slots-container {
+        width: 100%;
+        max-width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 0.5rem;
+    }
+}
+
 @media (min-width: 320px) {
     /* Ensure minimum touch target sizes */
     .btn, .menu-item, .slot, .nav-btn {
@@ -93,6 +155,35 @@
 
 /* Tablet Styles - 768px and up */
 @media (min-width: 768px) {
+    /* Show desktop navigation */
+    .header-nav {
+        display: block;
+    }
+    
+    /* Hide mobile menu toggle */
+    .mobile-menu-toggle {
+        display: none;
+    }
+    
+    /* Hide mobile menu dropdown */
+    .mobile-menu {
+        display: none;
+    }
+    
+    /* Adjust navigation for tablet */
+    .nav-item {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.95rem;
+    }
+    
+    .nav-icon {
+        font-size: 1.2rem;
+    }
+    
+    .brand-title {
+        font-size: 1.75rem;
+    }
+    
     .header-content {
         padding: 0 1rem;
     }
@@ -148,11 +239,34 @@
 /* Desktop Styles - 1024px and up */
 @media (min-width: 1024px) {
     .header {
-        padding: 1.5rem 2rem;
+        padding: 0;
     }
     
-    .site-title {
-        font-size: 2rem;
+    .header-container {
+        padding: 2rem;
+        gap: 3rem;
+    }
+    
+    .brand-title {
+        font-size: 2.25rem;
+    }
+    
+    .brand-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    /* Full desktop navigation styling */
+    .nav-item {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .nav-icon {
+        font-size: 1.3rem;
+    }
+    
+    .nav-text {
+        font-size: 1rem;
     }
     
     /* Desktop sidebar behavior */
@@ -238,8 +352,36 @@
 
 /* Large Desktop Styles - 1440px and up */
 @media (min-width: 1440px) {
-    .header {
-        padding: 2rem;
+    .header-container {
+        padding: 2.5rem;
+        gap: 4rem;
+        max-width: 1600px;
+    }
+    
+    .brand-title {
+        font-size: 2.5rem;
+    }
+    
+    .brand-subtitle {
+        font-size: 1rem;
+    }
+    
+    /* Enhanced navigation for large screens */
+    .nav-list {
+        gap: 1rem;
+    }
+    
+    .nav-item {
+        padding: 1.25rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .nav-icon {
+        font-size: 1.4rem;
+    }
+    
+    .nav-text {
+        font-size: 1.1rem;
     }
     
     .main-container {
