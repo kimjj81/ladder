@@ -1,0 +1,379 @@
+/* Simple Ladder Game Styles - 4.png 기반 */
+
+/* 메인 컨테이너 */
+.simple-ladder-container {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* 게임 헤더 */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.game-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.game-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* 메인 게임 영역 */
+.ladder-game-area {
+    display: grid;
+    grid-template-columns: 150px 1fr 150px;
+    gap: 1rem;
+    min-height: 500px;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+/* 영역 라벨 */
+.area-label {
+    text-align: center;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* 참가자 영역 */
+.participants-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.participants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.participant-item {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.participant-item:hover {
+    transform: translateX(5px);
+}
+
+.participant-box {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    position: relative;
+    min-height: 50px;
+    box-sizing: border-box;
+    font-weight: 600;
+    color: #333;
+}
+
+.participant-item.revealed .participant-box {
+    background: var(--connection-color, #f8f9fa);
+    color: white;
+    border-color: var(--connection-color, #e9ecef);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+}
+
+.participant-text {
+    flex: 1;
+}
+
+.connection-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+    margin-left: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+/* 사다리 영역 */
+.ladder-area {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    min-height: 500px;
+}
+
+.ladder-canvas {
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 결과 영역 */
+.results-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.result-item {
+    transition: all 0.3s ease;
+}
+
+.result-item:hover {
+    transform: translateX(-5px);
+}
+
+.result-box {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    position: relative;
+    min-height: 50px;
+    box-sizing: border-box;
+    font-weight: 600;
+    color: #333;
+}
+
+.result-item.revealed .result-box {
+    background: var(--connection-color, #f8f9fa);
+    color: white;
+    border-color: var(--connection-color, #e9ecef);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+}
+
+.result-text {
+    flex: 1;
+    text-align: right;
+}
+
+.result-box .connection-indicator {
+    margin-right: 0.5rem;
+    margin-left: 0;
+}
+
+/* 결과 테이블 */
+.results-table-section {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.table-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.results-count {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.results-table-wrapper {
+    overflow-x: auto;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.results-table th {
+    background: #6c757d;
+    color: white;
+    padding: 0.8rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.results-table td {
+    padding: 0.8rem;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.results-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.results-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.result-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #545b62;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* 애니메이션 */
+@keyframes connectionReveal {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.participant-item.revealed,
+.result-item.revealed {
+    animation: connectionReveal 0.5s ease-out;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .ladder-game-area {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 1rem;
+        min-height: auto;
+    }
+    
+    .participants-area {
+        order: 1;
+    }
+    
+    .ladder-area {
+        order: 2;
+        min-height: 300px;
+    }
+    
+    .results-area {
+        order: 3;
+    }
+    
+    .participants-list,
+    .results-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .participant-item,
+    .result-item {
+        flex: 0 0 calc(50% - 0.5rem);
+        max-width: 200px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .game-controls {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .simple-ladder-container {
+        padding: 0.5rem;
+    }
+    
+    .participant-item,
+    .result-item {
+        flex: 0 0 100%;
+    }
+    
+    .ladder-area {
+        min-height: 250px;
+    }
+}

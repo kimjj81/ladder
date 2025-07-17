@@ -12,6 +12,7 @@ class LadderGame {
         this.errorHandler = window.ErrorHandler ? new ErrorHandler() : null; // Error handler
         this.ladderRenderer = null; // Ladder renderer instance
         this.compactLadderComponent = null; // Compact ladder component instance
+        this.simpleLadderGame = null; // Simple ladder game instance
         
         this.init();
     }
@@ -1567,8 +1568,8 @@ class LadderGame {
             slotsDiv.style.display = 'none';
         }
         
-        // Create compact ladder display instead of traditional ladder
-        this.createCompactLadderDisplay();
+        // Create simple ladder display
+        this.createSimpleLadderDisplay();
     }
 
     createLadderDisplay() {
@@ -1710,6 +1711,61 @@ class LadderGame {
         this.revealedPaths.add(topIndex);
         
         console.log(`Path revealed in compact mode: ${this.topSlots[topIndex]} → ${this.bottomSlots[path.end]}`);
+    }
+
+    createSimpleLadderDisplay() {
+        // Create or get ladder display container
+        let ladderContainer = document.getElementById('ladderDisplay');
+        
+        if (!ladderContainer) {
+            ladderContainer = document.createElement('div');
+            ladderContainer.id = 'ladderDisplay';
+            ladderContainer.className = 'ladder-display simple-display';
+            
+            const gameContainer = document.querySelector('.game-container');
+            if (gameContainer) {
+                gameContainer.appendChild(ladderContainer);
+            }
+        }
+        
+        // Initialize simple ladder game
+        if (!this.simpleLadderGame) {
+            this.simpleLadderGame = new window.SimpleLadderGame(ladderContainer);
+        }
+        
+        // Setup the game data in the simple component
+        this.simpleLadderGame.setupGame(
+            this.slotCount,
+            this.topSlots,
+            this.bottomSlots,
+            this.connections
+        );
+        
+        // Override the reset button to use our reset logic
+        this.setupSimpleLadderEventHandlers();
+        
+        ladderContainer.style.display = 'block';
+        console.log('Simple ladder display created');
+    }
+
+    setupSimpleLadderEventHandlers() {
+        if (!this.simpleLadderGame) return;
+        
+        // Reset 버튼에 추가 로직 연결
+        const resetBtn = this.simpleLadderGame.resetBtn;
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                // 새로운 연결 생성
+                this.generateLadder();
+                // 게임 재설정
+                this.simpleLadderGame.setupGame(
+                    this.slotCount,
+                    this.topSlots,
+                    this.bottomSlots,
+                    this.connections
+                );
+            });
+        }
     }
 
     setupLadderEventListeners() {
@@ -2393,10 +2449,20 @@ class LadderGame {
         // Clear revealed paths
         this.revealedPaths = new Set();
         
-        // Clear highlights and revealed states
-        document.querySelectorAll('.ladder-slot.highlighted, .ladder-slot.revealed').forEach(slot => {
-            slot.classList.remove('highlighted', 'revealed');
-        });
+        // Reset compact component if it exists
+        if (this.compactLadderComponent) {
+            this.compactLadderComponent.setupGame(
+                this.slotCount,
+                this.topSlots,
+                this.bottomSlots,
+                this.connections
+            );
+        } else {
+            // Clear highlights and revealed states (traditional mode)
+            document.querySelectorAll('.ladder-slot.highlighted, .ladder-slot.revealed').forEach(slot => {
+                slot.classList.remove('highlighted', 'revealed');
+            });
+        }
         
         // Reset reveal all button
         this.updateRevealAllButton();

@@ -46,24 +46,24 @@ class CompactLadderComponent {
 
             <!-- 참가자-사다리-결과 통합 영역 -->
             <div class="ladder-unified-area">
-                <!-- 참가자 영역 -->
-                <div class="participants-column">
-                    <div class="column-header">참가자</div>
-                    <div class="participants-list"></div>
-                </div>
-
-                <!-- 사다리 영역 -->
-                <div class="ladder-column">
-                    <div class="column-header">사다리</div>
-                    <div class="ladder-canvas-wrapper">
-                        <canvas class="compact-ladder-canvas"></canvas>
+                <!-- 참가자와 결과가 가로로 배치되고 사다리로 연결 -->
+                <div class="horizontal-ladder-container">
+                    <!-- 참가자 목록 (세로 배치) -->
+                    <div class="participants-column">
+                        <div class="participants-list"></div>
                     </div>
-                </div>
 
-                <!-- 결과 영역 -->
-                <div class="results-column">
-                    <div class="column-header">결과</div>
-                    <div class="results-list"></div>
+                    <!-- 사다리 영역 (가로) -->
+                    <div class="ladder-column">
+                        <div class="ladder-canvas-wrapper">
+                            <canvas class="compact-ladder-canvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 결과 목록 (세로 배치) -->
+                    <div class="results-column">
+                        <div class="results-list"></div>
+                    </div>
                 </div>
             </div>
 
@@ -226,7 +226,108 @@ class CompactLadderComponent {
         this.canvas.style.width = `${containerWidth}px`;
         this.canvas.style.height = `${optimalHeight}px`;
 
+        // 캔버스 컨텍스트 초기화 및 사다리 그리기
+        this.ctx = this.canvas.getContext('2d');
+        this.drawLadder();
+
         console.log('Canvas size set:', { width: containerWidth, height: optimalHeight });
+    }
+
+    drawLadder() {
+        if (!this.ctx || !this.connections || this.connections.length === 0) return;
+
+        const canvas = this.canvas;
+        const ctx = this.ctx;
+        
+        // 캔버스 클리어
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 가로형 사다리 그리기 설정
+        const slotHeight = canvas.height / this.slotCount;
+        const ladderWidth = canvas.width - 40; // 좌우 여백
+        const leftX = 20;
+        const rightX = leftX + ladderWidth;
+        const verticalLevels = Math.max(3, Math.floor(ladderWidth / 60)); // 가로 레벨 수
+        const levelWidth = ladderWidth / verticalLevels;
+
+        // 가로선 그리기 (참가자와 결과를 연결하는 선)
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let i = 0; i < this.slotCount; i++) {
+            const y = (i + 0.5) * slotHeight;
+            ctx.moveTo(leftX, y);
+            ctx.lineTo(rightX, y);
+        }
+        ctx.stroke();
+
+        // 세로 연결선 그리기 (사다리 효과)
+        ctx.strokeStyle = '#bbb';
+        ctx.lineWidth = 2;
+        
+        for (let level = 0; level < verticalLevels; level++) {
+            const x = leftX + (level + 0.5) * levelWidth;
+            
+            // 각 레벨에서 랜덤하게 일부 구간에 세로선 추가
+            for (let i = 0; i < this.slotCount - 1; i++) {
+                if (Math.random() > 0.6) { // 40% 확률로 세로선 생성
+                    const y1 = (i + 0.5) * slotHeight;
+                    const y2 = (i + 1.5) * slotHeight;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, y1);
+                    ctx.lineTo(x, y2);
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        console.log('Horizontal ladder drawn on canvas');
+    }
+
+    drawConnectionPath(topIndex, bottomIndex, color) {
+        if (!this.ctx) return;
+
+        const canvas = this.canvas;
+        const ctx = this.ctx;
+        const slotHeight = canvas.height / this.slotCount;
+        const ladderWidth = canvas.width - 40;
+        const leftX = 20;
+        const rightX = leftX + ladderWidth;
+
+        // 연결 경로 하이라이트
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 4;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 8;
+        
+        ctx.beginPath();
+        
+        // 시작점과 끝점 (가로형)
+        const startY = (topIndex + 0.5) * slotHeight;
+        const endY = (bottomIndex + 0.5) * slotHeight;
+        
+        // 가로 연결선 그리기
+        ctx.moveTo(leftX, startY);
+        
+        // 중간 경로 포인트들 (지그재그 효과)
+        const levels = 3;
+        for (let i = 1; i <= levels; i++) {
+            const x = leftX + (ladderWidth / (levels + 1)) * i;
+            const progress = i / (levels + 1);
+            const y = startY + (endY - startY) * progress + (Math.random() - 0.5) * 20;
+            ctx.lineTo(x, y);
+        }
+        
+        // 끝점
+        ctx.lineTo(rightX, endY);
+        ctx.stroke();
+        
+        // 그림자 효과 제거
+        ctx.shadowBlur = 0;
+        
+        console.log(`Horizontal connection path drawn: ${topIndex} → ${bottomIndex} with color ${color}`);
     }
 
     revealConnection(topIndex) {
@@ -284,7 +385,10 @@ class CompactLadderComponent {
     }
 
     animateConnectionReveal(topIndex, bottomIndex, color) {
-        // 연결 애니메이션 (실제 사다리 렌더링은 별도 구현)
+        // 사다리에 색상 경로 그리기
+        this.drawConnectionPath(topIndex, bottomIndex, color);
+        
+        // 참가자와 결과 아이템에 펄스 애니메이션
         const participantItem = this.participantsList.querySelector(`[data-index="${topIndex}"]`);
         const resultItem = this.resultsList.querySelector(`[data-index="${bottomIndex}"]`);
 

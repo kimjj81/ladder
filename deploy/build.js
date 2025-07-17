@@ -20,12 +20,14 @@ const COPY_PATTERNS = [
 const CSS_FILES = [
     'css/main.css',
     'css/responsive.css',
-    'css/ladder.css'
+    'css/ladder.css',
+    'css/simple-ladder.css'
 ];
 
 // JS files to minify and combine
 const JS_FILES = [
     'js/error-handler.js',
+    'js/simple-ladder-game.js',
     'js/compact-ladder-component.js',
     'js/storage.js',
     'js/ui-components.js',
