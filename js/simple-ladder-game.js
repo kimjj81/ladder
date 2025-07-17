@@ -1,4 +1,4 @@
-'''// Simple Ladder Game - Grid Layout Version
+// Simple Ladder Game - Grid Layout Version
 class SimpleLadderGame {
     constructor(container) {
         this.container = container;
@@ -163,12 +163,13 @@ class SimpleLadderGame {
     }
     
     getSlotYCoordinates() {
-        const participantItems = this.gameArea.querySelectorAll('.participant-item');
-        const canvasRect = this.canvas.getBoundingClientRect();
-        return Array.from(participantItems).map(item => {
-            const itemRect = item.getBoundingClientRect();
-            return itemRect.top - canvasRect.top + itemRect.height / 2;
-        });
+        const canvas = this.canvas;
+        const slotHeight = canvas.height / this.slotCount;
+        const slotYs = [];
+        for (let i = 0; i < this.slotCount; i++) {
+            slotYs.push(slotHeight * (i + 0.5));
+        }
+        return slotYs;
     }
 
     drawLadder() {
@@ -210,25 +211,25 @@ class SimpleLadderGame {
     }
     
     revealConnection(topIndex) {
-        const alreadyRevealed = this.revealedConnections.has(topIndex);
         const bottomIndex = this.connections[topIndex];
         const color = this.colors[topIndex % this.colors.length];
 
-        this.drawLadder();
+        this.drawLadder(); // Redraw ladder to clear previous paths
+        
         const pathsToDraw = new Set(this.revealedConnections);
-        pathsToDraw.add(topIndex);
+        pathsToDraw.add(topIndex); // Add current path to be drawn
+
+        // Redraw all revealed paths
         pathsToDraw.forEach(idx => {
             this.drawConnectionPath(idx, this.colors[idx % this.colors.length]);
         });
 
-        if (alreadyRevealed) {
-            return;
+        if (!this.revealedConnections.has(topIndex)) {
+            this.revealedConnections.add(topIndex);
+            this.highlightParticipant(topIndex, color);
+            this.highlightResult(bottomIndex, color, topIndex);
+            this.updateResultsTable();
         }
-
-        this.revealedConnections.add(topIndex);
-        this.highlightParticipant(topIndex, color);
-        this.highlightResult(bottomIndex, color, topIndex);
-        this.updateResultsTable();
     }
     
     drawConnectionPath(topIndex, color) {
@@ -313,7 +314,7 @@ class SimpleLadderGame {
             const color = this.colors[topIndex % this.colors.length];
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><span class="result-indicator" style="background-color: ${color}"></span>${this.topSlots[topIndex]}</td>
+                <td><span class="result-indicator" style="background-color: ${color}"></span>${topIndex + 1}. ${this.topSlots[topIndex]}</td>
                 <td>→</td>
                 <td><span class="result-indicator" style="background-color: ${color}"></span>${this.bottomSlots[bottomIndex]}</td>
             `;
@@ -366,7 +367,7 @@ const simpleLadderStyles = `
 .ladder-game-area {
     display: grid;
     grid-template-columns: minmax(150px, 1.5fr) 3fr minmax(150px, 1.5fr);
-    grid-template-rows: auto repeat(var(--slot-count, 1), auto);
+    grid-template-rows: auto repeat(var(--slot-count, 1), 1fr);
     align-items: stretch;
 }
 .area-label {
@@ -447,4 +448,3 @@ const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = simpleLadderStyles;
 document.head.appendChild(styleSheet);
-''

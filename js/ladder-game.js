@@ -1411,13 +1411,13 @@ class LadderGame {
     }
 
     generateLadder() {
-        // Generate random connections between top and bottom slots
-        this.connections = this.generateRandomConnections();
-        
         // Generate ladder structure with horizontal bars
         this.ladderStructure = this.generateLadderStructure();
         
-        console.log('Ladder generated:', {
+        // Determine connections by tracing paths on the generated structure
+        this.connections = this.ladderStructure.paths.map(p => p.end);
+
+        console.log('Ladder generated with paths determining connections:', {
             connections: this.connections,
             structure: this.ladderStructure
         });
