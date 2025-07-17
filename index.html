@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <meta name="description" content="사다리타기 게임 - 랜덤 선택을 위한 재미있는 웹 게임">
-    <meta name="keywords" content="사다리타기, 게임, 랜덤선택, 웹게임">
-    <title>사다리타기 게임</title>
+    <meta name="description" content="Ladder Game - Fun web game for random selection">
+    <meta name="keywords" content="ladder game, random selection, web game">
+    <title>Ladder Game</title>
     <meta name="google-adsense-account" content="ca-pub-1535530089295655">
 
     <!-- CSS Files -->
@@ -25,15 +25,15 @@
     <header class="header">
         <div class="header-container">
             <div class="header-brand">
-                <h1 class="brand-title">🎯 사다리타기</h1>
-                <span class="brand-subtitle">랜덤 선택 게임</span>
+                <h1 class="brand-title" data-i18n="header.title">🎯 Ladder Game</h1>
+                <span class="brand-subtitle" data-i18n="header.subtitle">Random Selection Game</span>
             </div>
             
             <nav class="header-nav">
                 <ul class="nav-list">
                     <li><a href="#ladder-game" class="nav-item active" data-section="ladder-game">
                         <span class="nav-icon">🎲</span>
-                        <span class="nav-text">게임하기</span>
+                        <span class="nav-text" data-i18n="nav.game">Play Game</span>
                     </a></li>
                     <!-- <li><a href="#saved-games" class="nav-item" data-section="saved-games">
                         <span class="nav-icon">💾</span>
@@ -59,15 +59,15 @@
             <ul class="mobile-nav-list">
                 <li><a href="#ladder-game" class="mobile-nav-item active" data-section="ladder-game">
                     <span class="nav-icon">🎲</span>
-                    <span class="nav-text">게임하기</span>
+                    <span class="nav-text" data-i18n="nav.game">Play Game</span>
                 </a></li>
                 <li><a href="#saved-games" class="mobile-nav-item" data-section="saved-games">
                     <span class="nav-icon">💾</span>
-                    <span class="nav-text">저장된 게임</span>
+                    <span class="nav-text" data-i18n="nav.saved">Saved Games</span>
                 </a></li>
                 <li><a href="#about" class="mobile-nav-item" data-section="about">
                     <span class="nav-icon">ℹ️</span>
-                    <span class="nav-text">게임 설명</span>
+                    <span class="nav-text" data-i18n="nav.about">About</span>
                 </a></li>
             </ul>
         </div>
@@ -79,28 +79,28 @@
         <main class="content" id="mainContent">
             <!-- Ladder Game Section -->
             <section id="ladder-game-section" class="game-section active">
-                <h2>사다리타기 게임</h2>
+                <h2 data-i18n="game.title">Ladder Game</h2>
                 <div class="game-container">
                     <!-- Ladder Game Setup Interface -->
                     <div class="ladder-setup" id="ladderSetup">
-                        <h3 class="setup-title">🎯 게임 설정</h3>
-                        <p class="setup-description">참가자 수를 입력하고 사다리타기를 시작해보세요!</p>
+                        <h3 class="setup-title" data-i18n="setup.title">🎯 Game Setup</h3>
+                        <p class="setup-description" data-i18n="setup.description">Enter the number of participants and start the ladder game!</p>
 
                         <form class="setup-form" id="setupForm">
                             <div class="form-group">
                                 <label for="slotCount" class="form-label">
                                     <span class="label-icon">👥</span>
-                                    참가자 수 (2-20명)
+                                    <span data-i18n="setup.participants">Number of Participants (2-20)</span>
                                 </label>
                                 <input type="number" id="slotCount" class="form-input slot-count-input" min="2" max="20"
-                                    placeholder="참가자 수를 입력하세요" required>
+                                    data-i18n-placeholder="setup.participants.placeholder" placeholder="Enter number of participants" required>
                                 <div class="error-message" id="slotCountError"></div>
                             </div>
 
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary setup-btn">
                                     <span class="btn-icon">🚀</span>
-                                    게임 시작하기
+                                    <span data-i18n="setup.start">Start Game</span>
                                 </button>
                             </div>
                         </form>
@@ -108,17 +108,17 @@
 
                     <!-- Dynamic Slots Container (Hidden initially) -->
                     <div class="slots-setup" id="slotsSetup" style="display: none;">
-                        <h3 class="slots-title">✏️ 참가자 및 결과 입력</h3>
+                        <h3 class="slots-title" data-i18n="slots.title">✏️ Enter Participants and Results</h3>
 
                         <div class="slots-section">
-                            <h4 class="slots-section-title">👆 참가자 (위쪽)</h4>
+                            <h4 class="slots-section-title" data-i18n="slots.participants">👆 Participants (Top)</h4>
                             <div class="slots-container" id="topSlots">
                                 <!-- Top slots will be generated dynamically -->
                             </div>
                         </div>
 
                         <div class="slots-section">
-                            <h4 class="slots-section-title">👇 결과 (아래쪽)</h4>
+                            <h4 class="slots-section-title" data-i18n="slots.results">👇 Results (Bottom)</h4>
                             <div class="slots-container" id="bottomSlots">
                                 <!-- Bottom slots will be generated dynamically -->
                             </div>
@@ -127,19 +127,19 @@
                         <div class="slots-actions">
                             <button type="button" class="btn btn-secondary" id="resetSetupBtn">
                                 <span class="btn-icon">🔄</span>
-                                다시 설정
+                                <span data-i18n="slots.reset">Reset Setup</span>
                             </button>
                             <button type="button" class="btn btn-success" id="saveGameBtn" disabled>
                                 <span class="btn-icon">💾</span>
-                                게임 저장
+                                <span data-i18n="slots.save">Save Game</span>
                             </button>
                             <button type="button" class="btn btn-info" id="randomizeBtn" disabled>
                                 <span class="btn-icon">🎯</span>
-                                다시 섞기
+                                <span data-i18n="slots.randomize">Randomize</span>
                             </button>
                             <button type="button" class="btn btn-primary" id="startGameBtn" disabled>
                                 <span class="btn-icon">🎲</span>
-                                사다리 생성하기
+                                <span data-i18n="slots.generate">Generate Ladder</span>
                             </button>
                         </div>
                     </div>
@@ -148,20 +148,20 @@
 
             <!-- Saved Games Section -->
             <section id="saved-games-section" class="game-section">
-                <h2>저장된 게임</h2>
+                <h2 data-i18n="saved.title">Saved Games</h2>
                 <div class="saved-games-header">
                     <div class="saved-games-stats">
-                        <span id="savedGamesCount">0개의 저장된 게임</span>
-                        <span id="storageUsage">저장공간: 0%</span>
+                        <span id="savedGamesCount">0 saved games</span>
+                        <span id="storageUsage">Storage: 0%</span>
                     </div>
                     <div class="saved-games-actions">
                         <button type="button" class="btn btn-secondary btn-sm" id="refreshSavedGamesBtn">
                             <span class="btn-icon">🔄</span>
-                            새로고침
+                            <span data-i18n="saved.refresh">Refresh</span>
                         </button>
                         <button type="button" class="btn btn-danger btn-sm" id="clearAllGamesBtn">
                             <span class="btn-icon">🗑️</span>
-                            모두 삭제
+                            <span data-i18n="saved.clear.all">Delete All</span>
                         </button>
                     </div>
                 </div>
@@ -172,10 +172,10 @@
 
             <!-- About Section -->
             <section id="about-section" class="game-section">
-                <h2>게임 설명</h2>
+                <h2 data-i18n="about.title">About the Game</h2>
                 <div class="about-content">
-                    <p>사다리타기는 여러 선택지 중에서 랜덤하게 하나를 선택할 때 사용하는 재미있는 게임입니다.</p>
-                    <p>상단에 선택할 항목들을, 하단에 결과들을 입력하고 사다리를 그려서 결과를 확인해보세요!</p>
+                    <p data-i18n="about.description1">Ladder Game is a fun game used to randomly select one option from multiple choices.</p>
+                    <p data-i18n="about.description2">Enter the items to choose from at the top, the results at the bottom, and draw the ladder to see the results!</p>
                 </div>
             </section>
         </main>
@@ -183,11 +183,12 @@
 
     <footer class="footer">
         <div class="footer-content">
-            <p>&copy; 2025 사다리타기 게임. All rights reserved.</p>
+            <p data-i18n="footer.copyright">&copy; 2025 Ladder Game. All rights reserved.</p>
         </div>
     </footer>
 
     <!-- JavaScript Files -->
+    <script src="js/language-manager.js"></script>
     <script src="js/error-handler.js"></script>
     <script src="js/simple-ladder-game.js"></script>
     <script src="js/compact-ladder-component.js"></script>

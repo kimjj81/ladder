@@ -28,21 +28,21 @@ class SlotInput {
         inputContainer.innerHTML = `
             <div class="input-section">
                 <div class="input-group">
-                    <input type="text" class="slot-input-box" placeholder="내용을 입력하고 Enter를 누르세요" maxlength="20">
+                    <input type="text" class="slot-input-box" data-i18n-placeholder="input.placeholder" placeholder="Enter content and press Enter" maxlength="20">
                     <div class="input-hint">
-                        <span class="current-slot-indicator">참가자 1</span>에 입력 중...
+                        <span class="current-slot-indicator">Participant 1</span> entering...
                     </div>
-                    <div class="input-help">
-                        💡 <strong>단축키:</strong> Ctrl+Del 또는 Ctrl+Backspace로 현재 슬롯 삭제
+                    <div class="input-help" data-i18n="input.shortcuts">
+                        💡 <strong>Shortcuts:</strong> Ctrl+Del or Ctrl+Backspace to delete current slot
                     </div>
                 </div>
                 <div class="navigation-controls">
-                    <button class="nav-btn prev-btn" title="이전 슬롯">
+                    <button class="nav-btn prev-btn" title="Previous slot">
                         <span class="nav-icon">◀</span>
-                        이전
+                        <span data-i18n="input.nav.prev">Previous</span>
                     </button>
-                    <button class="nav-btn next-btn" title="다음 슬롯">
-                        다음
+                    <button class="nav-btn next-btn" title="Next slot">
+                        <span data-i18n="input.nav.next">Next</span>
                         <span class="nav-icon">▶</span>
                     </button>
                 </div>
@@ -52,7 +52,7 @@ class SlotInput {
                     <div class="progress-fill"></div>
                 </div>
                 <div class="progress-text">
-                    <span class="current-progress">0</span> / <span class="total-slots">0</span> 완료
+                    <span class="current-progress">0</span> / <span class="total-slots">0</span> <span data-i18n="input.progress.completed">completed</span>
                 </div>
             </div>
         `;
@@ -170,7 +170,7 @@ class SlotInput {
 
         const content = this.inputBox.value.trim();
         if (content === '') {
-            this.showInputError('내용을 입력해주세요');
+            this.showInputError(window.languageManager?.t('input.error.empty') || 'Please enter content');
             return;
         }
 
@@ -356,8 +356,8 @@ class SlotInput {
         if (!this.currentSlotIndicator) return;
 
         const slotName = this.currentSlotType === 'top' 
-            ? `참가자 ${this.currentSlotIndex + 1}`
-            : `결과 ${this.currentSlotIndex + 1}`;
+            ? (window.languageManager?.t('input.current.participant', this.currentSlotIndex + 1) || `Participant ${this.currentSlotIndex + 1}`)
+            : (window.languageManager?.t('input.current.result', this.currentSlotIndex + 1) || `Result ${this.currentSlotIndex + 1}`);
         
         this.currentSlotIndicator.textContent = slotName;
         this.updateInputHint();
@@ -365,8 +365,8 @@ class SlotInput {
 
     updateInputHint() {
         const placeholder = this.currentSlotType === 'top' 
-            ? `참가자 ${this.currentSlotIndex + 1} 이름을 입력하세요`
-            : `결과 ${this.currentSlotIndex + 1}을 입력하세요`;
+            ? (window.languageManager?.t('input.hint.participant', this.currentSlotIndex + 1) || `Enter participant ${this.currentSlotIndex + 1} name`)
+            : (window.languageManager?.t('input.hint.result', this.currentSlotIndex + 1) || `Enter result ${this.currentSlotIndex + 1}`);
         
         if (this.inputBox) {
             this.inputBox.placeholder = placeholder;
@@ -729,7 +729,7 @@ class LadderRenderer {
         this.ctx.fillStyle = '#667eea';
         this.ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('🎲 사다리 그리는 중...', canvas.width / 2, canvas.height / 2);
+        this.ctx.fillText(window.languageManager?.t('canvas.loading') || '🎲 Drawing ladder...', canvas.width / 2, canvas.height / 2);
     }
 
     hideCanvasLoading() {
@@ -877,7 +877,7 @@ class LadderRenderer {
         
         // Create floating completion message
         const message = document.createElement('div');
-        message.textContent = '✨ 완성! ✨';
+        message.textContent = window.languageManager?.t('canvas.complete') || '✨ Complete! ✨';
         message.style.cssText = `
             position: fixed;
             top: ${rect.top + rect.height / 2}px;
@@ -1325,18 +1325,18 @@ class ResultsTable {
             <div class="results-header">
                 <h3 class="results-title">
                     <span class="results-icon">🎯</span>
-                    사다리타기 결과
+                    <span data-i18n="results.title">Ladder Game Results</span>
                 </h3>
                 <div class="results-summary">
-                    <span class="total-results">0개</span> 연결 완료
+                    <span class="total-results">0</span> <span data-i18n="results.summary.text">connections completed</span>
                 </div>
             </div>
             <table class="results-table">
                 <thead>
                     <tr>
-                        <th class="participant-col">참가자</th>
+                        <th class="participant-col" data-i18n="results.participant">Participant</th>
                         <th class="arrow-col"></th>
-                        <th class="result-col">결과</th>
+                        <th class="result-col" data-i18n="results.result">Result</th>
                     </tr>
                 </thead>
                 <tbody class="results-body">
@@ -1346,11 +1346,11 @@ class ResultsTable {
                 <div class="results-actions">
                     <button class="btn btn-secondary results-clear-btn">
                         <span class="btn-icon">🗑️</span>
-                        결과 지우기
+                        <span data-i18n="results.clear">Clear Results</span>
                     </button>
                     <button class="btn btn-info results-export-btn">
                         <span class="btn-icon">📋</span>
-                        결과 복사
+                        <span data-i18n="results.export">Copy Results</span>
                     </button>
                 </div>
             </div>
@@ -1393,8 +1393,8 @@ class ResultsTable {
 
         // Store results
         this.results = connections.map((connection, index) => ({
-            participant: topSlots[index] || `참가자 ${index + 1}`,
-            result: bottomSlots[connection] || `결과 ${connection + 1}`,
+            participant: topSlots[index] || (window.languageManager?.t('input.current.participant', index + 1) || `Participant ${index + 1}`),
+            result: bottomSlots[connection] || (window.languageManager?.t('input.current.result', connection + 1) || `Result ${connection + 1}`),
             color: colors ? colors[index] : null,
             index: index
         }));
@@ -1481,7 +1481,7 @@ class ResultsTable {
 
     updateSummary() {
         if (this.totalResultsSpan) {
-            this.totalResultsSpan.textContent = `${this.results.length}개`;
+            this.totalResultsSpan.textContent = `${this.results.length}`;
         }
     }
 
@@ -1503,7 +1503,7 @@ class ResultsTable {
 
     exportResults() {
         if (this.results.length === 0) {
-            this.showMessage('복사할 결과가 없습니다.', 'warning');
+            this.showMessage(window.languageManager?.t('results.export.empty') || 'No results to copy.', 'warning');
             return;
         }
 
@@ -1511,12 +1511,12 @@ class ResultsTable {
             `${result.participant} ➡️ ${result.result}`
         ).join('\n');
         
-        const fullText = `사다리타기 결과:\n\n${resultText}`;
+        const fullText = window.languageManager?.t('results.export.text', resultText) || `Ladder Game Results:\n\n${resultText}`;
 
         // Copy to clipboard
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(fullText).then(() => {
-                this.showMessage('결과가 클립보드에 복사되었습니다!', 'success');
+                this.showMessage(window.languageManager?.t('results.export.success') || 'Results copied to clipboard!', 'success');
             }).catch(() => {
                 this.fallbackCopyToClipboard(fullText);
             });
@@ -1537,10 +1537,10 @@ class ResultsTable {
         
         try {
             document.execCommand('copy');
-            this.showMessage('결과가 클립보드에 복사되었습니다!', 'success');
+            this.showMessage(window.languageManager?.t('results.export.success') || 'Results copied to clipboard!', 'success');
         } catch (err) {
             console.error('Failed to copy text: ', err);
-            this.showMessage('복사 실패. 수동으로 복사해주세요.', 'error');
+            this.showMessage(window.languageManager?.t('results.export.error') || 'Copy failed. Please copy manually.', 'error');
         }
         
         document.body.removeChild(textArea);

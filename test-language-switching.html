@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Switching Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .language-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Language Switching Test</h1>
+    
+    <div class="language-info">
+        <h3>Browser Language Detection</h3>
+        <p><strong>navigator.language:</strong> <span id="browserLanguage"></span></p>
+        <p><strong>Detected Language:</strong> <span id="detectedLanguage"></span></p>
+        <p><strong>Current Language:</strong> <span id="currentLanguage"></span></p>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Translations</h2>
+        <div id="translations-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Elements</h2>
+        <div>
+            <h3 data-i18n="header.title">🎯 Ladder Game</h3>
+            <p data-i18n="setup.description">Enter the number of participants and start the ladder game!</p>
+            <input type="text" data-i18n-placeholder="setup.participants.placeholder" placeholder="Enter number of participants">
+            <button data-i18n="setup.start">Start Game</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Manual Language Switch Test</h2>
+        <button id="switchToKorean" class="btn-primary">Switch to Korean</button>
+        <button id="switchToEnglish" class="btn-secondary">Switch to English</button>
+        <div id="switchResult"></div>
+    </div>
+    
+    <script src="js/language-manager.js"></script>
+    <script>
+        // Display browser language information
+        document.getElementById('browserLanguage').textContent = navigator.language || navigator.userLanguage;
+        
+        // Wait for language manager to load
+        window.addEventListener('load', function() {
+            if (window.languageManager) {
+                document.getElementById('detectedLanguage').textContent = window.languageManager.detectLanguage();
+                document.getElementById('currentLanguage').textContent = window.languageManager.getCurrentLanguage();
+                
+                // Test some translations
+                const testKeys = [
+                    'header.title',
+                    'setup.description', 
+                    'setup.start',
+                    'nav.game',
+                    'results.title'
+                ];
+                
+                const translationsDiv = document.getElementById('translations-test');
+                testKeys.forEach(key => {
+                    const translation = window.languageManager.t(key);
+                    const div = document.createElement('div');
+                    div.innerHTML = `<strong>${key}:</strong> ${translation}`;
+                    translationsDiv.appendChild(div);
+                });
+                
+                // Test language switching
+                document.getElementById('switchToKorean').addEventListener('click', function() {
+                    // Simulate Korean browser language
+                    testLanguageSwitch('ko');
+                });
+                
+                document.getElementById('switchToEnglish').addEventListener('click', function() {
+                    // Simulate English browser language
+                    testLanguageSwitch('en');
+                });
+            } else {
+                document.getElementById('detectedLanguage').textContent = 'Language manager not loaded';
+                document.getElementById('currentLanguage').textContent = 'N/A';
+            }
+        });
+        
+        function testLanguageSwitch(lang) {
+            const resultDiv = document.getElementById('switchResult');
+            
+            // Create a new language manager instance with the specified language
+            const testManager = new LanguageManager();
+            testManager.currentLanguage = lang;
+            
+            // Test translation
+            const testKey = 'header.title';
+            const translation = testManager.t(testKey);
+            
+            resultDiv.innerHTML = `
+                <div class="test-result ${lang === 'ko' ? 'success' : 'error'}">
+                    <strong>Language:</strong> ${lang}<br>
+                    <strong>Translation of "${testKey}":</strong> ${translation}
+                </div>
+            `;
+            
+            // Update the global language manager
+            window.languageManager.currentLanguage = lang;
+            window.languageManager.updatePageLanguage();
+            window.languageManager.updateAllI18nElements();
+            
+            // Update current language display
+            document.getElementById('currentLanguage').textContent = lang;
+        }
+    </script>
+</body>
+</html>
