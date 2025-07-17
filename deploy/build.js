@@ -144,7 +144,7 @@ function processHTML() {
     let htmlContent = readFile('index.html');
     
     // Replace CSS links with minified version
-    const cssLinkRegex = /<link rel="stylesheet" href="css\/(main|responsive|ladder)\.css">/g;
+    const cssLinkRegex = /<link rel="stylesheet" href="css\/(main|responsive|ladder|simple-ladder)\.css">/g;
     htmlContent = htmlContent.replace(cssLinkRegex, '');
     
     // Add minified CSS link
@@ -153,7 +153,7 @@ function processHTML() {
     htmlContent = htmlContent.replace(headCloseTag, minifiedCSSLink + headCloseTag);
     
     // Replace JS script tags with minified version
-    const jsScriptRegex = /<script src="js\/(error-handler|app|ladder-game|storage|ui-components|saved-games-manager)\.js"><\/script>/g;
+    const jsScriptRegex = /<script src="js\/(language-manager|error-handler|simple-ladder-game|compact-ladder-component|app|ladder-game|storage|ui-components|saved-games-manager)\.js"><\/script>/g;
     htmlContent = htmlContent.replace(jsScriptRegex, '');
     
     // Remove test script
@@ -171,6 +171,7 @@ function processHTML() {
         const optimizedMeta = `    <!-- Performance optimizations -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://pagead2.googlesyndication.com https://ep1.adtrafficquality.google; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com;">
     <link rel="preconnect" href="https://pagead2.googlesyndication.com">
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">`;
         
