@@ -1438,52 +1438,46 @@ class LadderGame {
 
     generateLadderStructure() {
         const structure = {
-            verticalLines: this.slotCount,
-            horizontalBars: [],
-            paths: []
+            numHorizontalLines: this.slotCount, // Number of participants/results
+            numVerticalLevels: Math.max(5, this.slotCount * 2), // Number of "columns" in the horizontal ladder
+            verticalBars: [], // Array of vertical bars (rungs)
+            paths: [] // Array of traced paths
         };
         
-        // Generate random horizontal bars between vertical lines
-        const numLevels = Math.max(5, this.slotCount * 2); // At least 5 levels, more for larger ladders
-        
-        for (let level = 0; level < numLevels; level++) {
-            const levelBars = [];
-            let i = 0;
-            
-            while (i < this.slotCount - 1) {
-                // Random chance to place a horizontal bar
+        // Generate random vertical bars between horizontal lines
+        for (let x_level = 0; x_level < structure.numVerticalLevels; x_level++) {
+            let y_index = 0;
+            while (y_index < this.slotCount - 1) {
+                // Random chance to place a vertical bar
                 if (Math.random() < 0.4) { // 40% chance for each possible position
-                    levelBars.push(i);
-                    i += 2; // Skip next position to avoid overlapping bars
+                    structure.verticalBars.push({
+                        x_level: x_level,
+                        y1_index: y_index,
+                        y2_index: y_index + 1
+                    });
+                    y_index += 2; // Skip next position to avoid overlapping bars
                 } else {
-                    i++;
+                    y_index++;
                 }
-            }
-            
-            if (levelBars.length > 0) {
-                structure.horizontalBars.push({
-                    level: level,
-                    bars: levelBars
-                });
             }
         }
         
-        // Generate paths from top to bottom
-        structure.paths = this.generatePaths(structure.horizontalBars, numLevels);
+        // Generate paths from start_y_index to end_y_index
+        structure.paths = this.generatePaths(structure.verticalBars, structure.numVerticalLevels);
         
         return structure;
     }
 
-    generatePaths(horizontalBars, numLevels) {
+    generatePaths(verticalBars, numVerticalLevels) {
         const paths = [];
         
-        for (let startIndex = 0; startIndex < this.slotCount; startIndex++) {
-            const pathSegments = this.tracePath(startIndex, horizontalBars, numLevels);
-            const finalPosition = this.getFinalPosition(pathSegments);
+        for (let startYIndex = 0; startYIndex < this.slotCount; startYIndex++) {
+            const pathSegments = this.tracePath(startYIndex, verticalBars, numVerticalLevels);
+            const finalYIndex = this.getFinalPosition(pathSegments);
             
             paths.push({
-                start: startIndex,
-                end: finalPosition,
+                start_y_index: startYIndex,
+                end_y_index: finalYIndex,
                 segments: pathSegments
             });
         }
@@ -1492,70 +1486,75 @@ class LadderGame {
     }
 
     getFinalPosition(segments) {
-        // Find the final position by looking at the last vertical segment
-        const lastVerticalSegment = segments.filter(s => s.type === 'vertical').pop();
-        return lastVerticalSegment ? lastVerticalSegment.x : 0;
+        // Find the final y_index by looking at the last segment
+        const lastSegment = segments[segments.length - 1];
+        if (lastSegment.type === 'horizontal') {
+            return lastSegment.y_index;
+        } else if (lastSegment.type === 'vertical') {
+            // This case should ideally not happen if path ends with horizontal segment
+            // but as a fallback, return the last y_index from the vertical segment
+            return lastSegment.y2_index;
+        }
+        return 0; // Fallback
     }
 
-    tracePath(startIndex, horizontalBars, numLevels) {
+    tracePath(startYIndex, verticalBars, numVerticalLevels) {
         const segments = [];
-        let currentPosition = startIndex;
+        let currentYIndex = startYIndex;
         
-        // Start with vertical segment from top
+        // Start with horizontal segment from left edge
         segments.push({
-            type: 'vertical',
-            x: currentPosition,
-            y1: 0,
-            y2: 1
+            type: 'horizontal',
+            x1: 0,
+            x2: 0,
+            y_index: currentYIndex
         });
         
-        // Process each level
-        for (let level = 0; level < numLevels; level++) {
-            const levelData = horizontalBars.find(h => h.level === level);
+        // Process each vertical level (column)
+        for (let x_level = 0; x_level < numVerticalLevels; x_level++) {
+            // Add horizontal segment to current x_level
+            segments.push({
+                type: 'horizontal',
+                x1: x_level,
+                x2: x_level + 1,
+                y_index: currentYIndex
+            });
+
+            // Check if there's a vertical bar at current x_level that affects currentYIndex
+            const barAtUpper = verticalBars.find(bar => 
+                bar.x_level === x_level && bar.y1_index === currentYIndex
+            );
+            const barAtLower = verticalBars.find(bar => 
+                bar.x_level === x_level && bar.y2_index === currentYIndex
+            );
             
-            if (levelData) {
-                // Check if there's a horizontal bar at current position
-                const barAtLeft = levelData.bars.includes(currentPosition - 1);
-                const barAtRight = levelData.bars.includes(currentPosition);
-                
-                if (barAtRight) {
-                    // Move right
-                    segments.push({
-                        type: 'horizontal',
-                        x1: currentPosition,
-                        x2: currentPosition + 1,
-                        y: level + 1
-                    });
-                    currentPosition++;
-                } else if (barAtLeft) {
-                    // Move left
-                    segments.push({
-                        type: 'horizontal',
-                        x1: currentPosition - 1,
-                        x2: currentPosition,
-                        y: level + 1
-                    });
-                    currentPosition--;
-                }
-            }
-            
-            // Add vertical segment to next level
-            if (level < numLevels - 1) {
+            if (barAtUpper) {
+                // Move down
                 segments.push({
                     type: 'vertical',
-                    x: currentPosition,
-                    y1: level + 1,
-                    y2: level + 2
+                    x_level: x_level + 1, // Vertical movement happens after horizontal segment
+                    y1_index: currentYIndex,
+                    y2_index: currentYIndex + 1
                 });
+                currentYIndex++;
+            } else if (barAtLower) {
+                // Move up
+                segments.push({
+                    type: 'vertical',
+                    x_level: x_level + 1, // Vertical movement happens after horizontal segment
+                    y1_index: currentYIndex - 1,
+                    y2_index: currentYIndex
+                });
+                currentYIndex--;
             }
         }
         
-        // Final vertical segment to bottom
+        // Final horizontal segment to right edge
         segments.push({
-            type: 'vertical',
-            x: currentPosition,
-            y1: numLevels,
-            y2: numLevels + 1
+            type: 'horizontal',
+            x1: numVerticalLevels,
+            x2: numVerticalLevels + 1,
+            y_index: currentYIndex
         });
         
         return segments;
@@ -1738,7 +1737,8 @@ class LadderGame {
             this.slotCount,
             this.topSlots,
             this.bottomSlots,
-            this.connections
+            this.connections,
+            this.ladderStructure // <--- Pass the ladderStructure here
         );
         
         // Override the reset button to use our reset logic
@@ -1762,7 +1762,8 @@ class LadderGame {
                     this.slotCount,
                     this.topSlots,
                     this.bottomSlots,
-                    this.connections
+                    this.connections,
+                    this.ladderStructure // <--- Pass the ladderStructure here
                 );
             });
         }

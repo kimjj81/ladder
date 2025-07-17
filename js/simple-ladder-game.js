@@ -77,14 +77,16 @@ class SimpleLadderGame {
         });
     }
     
-    setupGame(slotCount, topSlots, bottomSlots, connections) {
+    setupGame(slotCount, topSlots, bottomSlots, connections, ladderStructure) {
         this.slotCount = slotCount;
         this.topSlots = [...topSlots];
         this.bottomSlots = [...bottomSlots];
         this.connections = [...connections];
+        this.ladderStructure = ladderStructure; // Use passed ladderStructure
         this.revealedConnections.clear();
         
-        this.generateLadderStructure();
+        // No need to call generateLadderStructure() here anymore
+        
         this.renderGridUI();
         
         this.revealAllBtn.disabled = false;
@@ -183,8 +185,9 @@ class SimpleLadderGame {
         const leftX = 20;
         const rightX = canvas.width - 20;
         const ladderWidth = rightX - leftX;
-        const levelWidth = ladderWidth / this.ladderStructure.levels;
+        const levelWidth = ladderWidth / this.ladderStructure.numVerticalLevels;
 
+        // Draw horizontal lines (participant/result lines)
         ctx.strokeStyle = '#cccccc';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -194,20 +197,16 @@ class SimpleLadderGame {
         });
         ctx.stroke();
         
+        // Draw vertical bars (rungs)
         ctx.strokeStyle = '#bbbbbb';
         ctx.lineWidth = 3;
-        for (let level = 0; level < this.ladderStructure.levels; level++) {
-            const x = leftX + level * levelWidth;
-            const bars = this.ladderStructure.horizontalBars[level];
-            for (const barIndex of bars) {
-                if (barIndex + 1 < slotYs.length) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, slotYs[barIndex]);
-                    ctx.lineTo(x, slotYs[barIndex + 1]);
-                    ctx.stroke();
-                }
-            }
-        }
+        this.ladderStructure.verticalBars.forEach(bar => {
+            const x = leftX + (bar.x_level + 0.5) * levelWidth; // Center the bar in its level
+            ctx.beginPath();
+            ctx.moveTo(x, slotYs[bar.y1_index]);
+            ctx.lineTo(x, slotYs[bar.y2_index]);
+            ctx.stroke();
+        });
     }
     
     revealConnection(topIndex) {
@@ -221,7 +220,10 @@ class SimpleLadderGame {
 
         // Redraw all revealed paths
         pathsToDraw.forEach(idx => {
-            this.drawConnectionPath(idx, this.colors[idx % this.colors.length]);
+            const path = this.ladderStructure.paths.find(p => p.start_y_index === idx);
+            if (path) {
+                this.drawConnectionPath(path.segments, this.colors[idx % this.colors.length]);
+            }
         });
 
         if (!this.revealedConnections.has(topIndex)) {
@@ -232,17 +234,14 @@ class SimpleLadderGame {
         }
     }
     
-    drawConnectionPath(topIndex, color) {
+    drawConnectionPath(segments, color) {
         const ctx = this.ctx;
         const slotYs = this.getSlotYCoordinates();
         if (slotYs.length === 0) return;
 
         const leftX = 20;
-        const rightX = this.canvas.width - 20;
-        const ladderWidth = rightX - leftX;
-        const levelWidth = ladderWidth / this.ladderStructure.levels;
-
-        let currentPosition = topIndex;
+        const ladderWidth = this.canvas.width - 40;
+        const levelWidth = ladderWidth / this.ladderStructure.numVerticalLevels;
 
         ctx.strokeStyle = color;
         ctx.lineWidth = 5;
@@ -251,27 +250,30 @@ class SimpleLadderGame {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.beginPath();
-        ctx.moveTo(leftX, slotYs[currentPosition]);
 
-        for (let level = 0; level < this.ladderStructure.levels; level++) {
-            const x = leftX + level * levelWidth;
-            const nextX = leftX + (level + 1) * levelWidth;
-            const bars = this.ladderStructure.horizontalBars[level];
+        segments.forEach((segment, i) => {
+            let x1, y1, x2, y2;
 
-            ctx.lineTo(x, slotYs[currentPosition]);
-
-            if (bars.includes(currentPosition)) {
-                currentPosition++;
-                ctx.lineTo(x, slotYs[currentPosition]);
-            } else if (currentPosition > 0 && bars.includes(currentPosition - 1)) {
-                currentPosition--;
-                ctx.lineTo(x, slotYs[currentPosition]);
+            if (segment.type === 'horizontal') {
+                x1 = leftX + segment.x1 * levelWidth;
+                x2 = leftX + segment.x2 * levelWidth;
+                y1 = slotYs[segment.y_index];
+                y2 = slotYs[segment.y_index];
+            } else { // vertical
+                x1 = leftX + segment.x_level * levelWidth;
+                x2 = leftX + segment.x_level * levelWidth;
+                y1 = slotYs[segment.y1_index];
+                y2 = slotYs[segment.y2_index];
             }
-            
-            ctx.lineTo(nextX, slotYs[currentPosition]);
-        }
 
-        ctx.lineTo(rightX, slotYs[currentPosition]);
+            if (i === 0) {
+                ctx.moveTo(x1, y1);
+            } else {
+                ctx.lineTo(x1, y1);
+            }
+            ctx.lineTo(x2, y2);
+        });
+
         ctx.stroke();
 
         ctx.shadowBlur = 0;
