@@ -84,7 +84,6 @@
             <div>✓ Remove excessive white space between header and main content</div>
             <div>✓ Fix ad container display and positioning issues</div>
             <div>✓ Optimize ad loading to prevent layout shifts</div>
-            <div>✓ Remove or minimize ES6 compatibility warnings</div>
         </div>
         <div id="testResults"></div>
     </div>
@@ -205,8 +204,6 @@
                 // Test 3: Optimize ad loading to prevent layout shifts
                 this.testLayoutShiftPrevention();
                 
-                // Test 4: ES6 compatibility (check for common issues)
-                this.testES6Compatibility();
                 
                 // Test 5: Responsive ad behavior
                 this.testResponsiveAdBehavior();
@@ -281,24 +278,7 @@
                 );
             }
 
-            testES6Compatibility() {
-                // Check for common ES6 compatibility issues
-                let issues = [];
-                
-                // Check if modern JS features are used appropriately
-                const scripts = document.querySelectorAll('script');
-                let hasES6Issues = false;
-                
-                // This is a simplified check - in real implementation, 
-                // we would check for specific ES6 patterns that might cause issues
-                
-                this.addResult(
-                    'ES6 Compatibility',
-                    !hasES6Issues,
-                    'No major ES6 compatibility issues detected',
-                    'Modern JS features used appropriately'
-                );
-            }
+            
 
             testResponsiveAdBehavior() {
                 const screenWidth = window.innerWidth;
