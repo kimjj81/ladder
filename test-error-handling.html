@@ -53,11 +53,7 @@
     <h1>🧪 Error Handling Test Suite</h1>
     <p>사다리타기 게임의 오류 처리 기능을 테스트합니다.</p>
 
-    <div class="test-section">
-        <h2>1. 브라우저 호환성 검사</h2>
-        <button class="test-button" onclick="testBrowserSupport()">브라우저 지원 확인</button>
-        <div id="browserSupportResults" class="test-results" style="display: none;"></div>
-    </div>
+    
 
     <div class="test-section">
         <h2>2. 입력 검증 테스트</h2>
@@ -100,51 +96,7 @@
             console.log('Test suite initialized');
         });
 
-        function testBrowserSupport() {
-            const resultsDiv = document.getElementById('browserSupportResults');
-            resultsDiv.style.display = 'block';
-            
-            if (!errorHandler) {
-                resultsDiv.innerHTML = '<p style="color: red;">❌ ErrorHandler not initialized</p>';
-                return;
-            }
-
-            const support = errorHandler.browserSupport;
-            let html = '<h3>브라우저 지원 현황:</h3><ul>';
-            
-            Object.entries(support).forEach(([feature, supported]) => {
-                const icon = supported ? '✅' : '❌';
-                const status = supported ? '지원됨' : '지원되지 않음';
-                html += `<li>${icon} <strong>${feature}:</strong> ${status}</li>`;
-            });
-            
-            html += '</ul>';
-            
-            // Add recommendations
-            const unsupportedFeatures = Object.entries(support)
-                .filter(([feature, supported]) => !supported)
-                .map(([feature]) => feature);
-            
-            if (unsupportedFeatures.length > 0) {
-                html += '<h4>권장사항:</h4><ul>';
-                unsupportedFeatures.forEach(feature => {
-                    switch (feature) {
-                        case 'localStorage':
-                            html += '<li>브라우저 설정에서 쿠키/저장소를 허용하거나 시크릿 모드를 해제하세요</li>';
-                            break;
-                        case 'canvas':
-                            html += '<li>최신 브라우저로 업데이트하여 Canvas 지원을 받으세요</li>';
-                            break;
-                        case 'es6':
-                            html += '<li>최신 브라우저로 업데이트하여 ES6 지원을 받으세요</li>';
-                            break;
-                    }
-                });
-                html += '</ul>';
-            }
-            
-            resultsDiv.innerHTML = html;
-        }
+        
 
         function testSlotCountValidation() {
             const resultsDiv = document.getElementById('validationResults');
