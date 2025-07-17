@@ -93,3 +93,36 @@
 2. WHEN the user performs actions THEN the system SHALL provide appropriate visual feedback
 3. WHEN the user views the ladder THEN the system SHALL display it with clear, attractive graphics
 4. WHEN the user navigates the interface THEN the system SHALL maintain consistent design patterns throughout
+
+### Requirement 9
+
+**User Story:** As a user, I want a compact and efficient layout, so that the interface doesn't waste screen space.
+
+#### Acceptance Criteria
+
+1. WHEN the user views the application THEN the system SHALL minimize excessive padding and margins between elements
+2. WHEN the user views the ladder game THEN the system SHALL display participants, ladder, and results as a cohesive visual component
+3. WHEN the ladder is drawn THEN the system SHALL fill the available space efficiently without excessive padding
+4. WHEN there are many participants THEN the system SHALL limit ladder height to fit within one screen view
+
+### Requirement 10
+
+**User Story:** As a user, I want clear visual distinction when viewing results, so that I can easily identify connections.
+
+#### Acceptance Criteria
+
+1. WHEN the user clicks on a participant THEN the system SHALL highlight the selected participant-result connection with a distinct color
+2. WHEN a path is revealed THEN the system SHALL color the connecting ladder lines with the same color as the highlighted participant and result
+3. WHEN multiple paths are shown THEN the system SHALL use different colors to distinguish between different connections
+4. WHEN all results are revealed THEN the system SHALL maintain clear visual separation between different participant-result pairs
+
+### Requirement 11
+
+**User Story:** As a user, I want to see results in a persistent table format, so that I can review all connections easily.
+
+#### Acceptance Criteria
+
+1. WHEN all results are revealed THEN the system SHALL display a results table below the action buttons
+2. WHEN the table is shown THEN the system SHALL list all participant-result pairs in an organized format
+3. WHEN the user views the table THEN the system SHALL maintain the table until a new game is started
+4. WHEN the user interacts with the table THEN the system SHALL provide clear visual hierarchy and readability

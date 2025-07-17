@@ -79,8 +79,17 @@ class SlotInput {
 class LadderRenderer {
   constructor(canvas)
   drawLadder(connections, animated)
-  highlightPath(path)
+  highlightPath(path, color)
   animateReveal()
+  calculateOptimalHeight(participantCount)
+  renderCompactLayout()
+}
+
+class ResultsTable {
+  constructor(container)
+  displayResults(connections)
+  updateTable(participantResults)
+  clearTable()
 }
 ```
 
@@ -184,6 +193,22 @@ try {
 - **Mobile**: 단일 컬럼, 햄버거 메뉴, 터치 최적화
 - **Tablet**: 사이드바 토글, 적응형 그리드
 - **Desktop**: 고정 사이드바, 멀티 컬럼 레이아웃
+
+### Compact Design Principles
+- **Minimal Spacing**: 요소 간 패딩과 마진을 최소화하여 공간 효율성 극대화
+- **Unified Components**: 참가자-사다리-결과를 하나의 통합된 시각적 컴포넌트로 설계
+- **Efficient Canvas Usage**: 사다리 캔버스가 할당된 공간을 최대한 활용하도록 패딩 최소화
+- **Screen-Fit Optimization**: 참가자 수가 많아도 사다리 높이가 한 화면 내에 표시되도록 동적 조정
+
+### Visual Hierarchy and Color Coding
+- **Path Highlighting**: 선택된 경로는 고유한 색상으로 참가자-사다리선-결과를 일관되게 표시
+- **Color Differentiation**: 여러 경로가 동시에 표시될 때 각각 다른 색상으로 구분
+- **Visual Cohesion**: 참가자, 사다리, 결과가 시각적으로 하나의 연결된 컴포넌트로 인식되도록 디자인
+
+### Results Display Enhancement
+- **Persistent Table**: 팝업 대신 영구적인 테이블 형태로 결과 표시
+- **Table Placement**: 액션 버튼 아래에 결과 테이블을 배치하여 자연스러운 정보 흐름 제공
+- **Clear Formatting**: 참가자-결과 매핑을 명확하게 보여주는 테이블 구조
 
 ## Google Ads Integration
 

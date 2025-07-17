@@ -96,3 +96,31 @@
   - Optimize ad loading to prevent layout shifts
   - Remove or minimize ES6 compatibility warnings for better user experience
   - _Requirements: 8.1, 8.2, 7.3_
+
+- [ ] 15. Implement compact design improvements
+  - Reduce excessive padding and margins throughout the application
+  - Create unified visual component for participants-ladder-results
+  - Optimize canvas padding to fill available space efficiently
+  - Implement dynamic height calculation for better screen utilization
+  - _Requirements: 9.1, 9.2, 9.3, 9.4_
+
+- [ ] 16. Add color-coded path highlighting system
+  - Implement distinct color highlighting for selected participant-result connections
+  - Color ladder lines with same color as highlighted participants and results
+  - Add support for multiple color-coded paths when multiple results are shown
+  - Ensure clear visual separation between different participant-result pairs
+  - _Requirements: 10.1, 10.2, 10.3, 10.4_
+
+- [ ] 17. Replace popup results with persistent table display
+  - Remove popup-based result display system
+  - Create results table component to show participant-result mappings
+  - Position results table below action buttons for natural information flow
+  - Implement clear table formatting with proper visual hierarchy
+  - _Requirements: 11.1, 11.2, 11.3, 11.4_
+
+- [ ] 18. Optimize ladder height for screen-fit display
+  - Calculate optimal ladder height based on screen size and participant count
+  - Implement responsive height adjustment for different screen sizes
+  - Ensure ladder remains fully visible within viewport regardless of participant count
+  - Test height optimization across mobile, tablet, and desktop breakpoints
+  - _Requirements: 9.4_

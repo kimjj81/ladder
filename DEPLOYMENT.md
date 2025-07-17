@@ -181,7 +181,7 @@ add_header X-XSS-Protection "1; mode=block" always;
 sudo nano /etc/nginx/sites-available/ladder-game
 
 # server_name 변경
-server_name your-domain.com www.your-domain.com;
+server_name windroamer.com www.windroamer.com;
 
 # 설정 테스트 및 재로드
 sudo nginx -t
@@ -196,7 +196,7 @@ sudo systemctl reload nginx
 sudo apt install certbot python3-certbot-nginx -y
 
 # SSL 인증서 발급 및 자동 설정
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot --nginx -d windroamer.com -d www.windroamer.com
 
 # 자동 갱신 테스트
 sudo certbot renew --dry-run
@@ -206,7 +206,7 @@ sudo certbot renew --dry-run
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name your-domain.com www.your-domain.com;
+    server_name windroamer.com www.windroamer.com;
     
     ssl_certificate /path/to/your/certificate.crt;
     ssl_certificate_key /path/to/your/private.key;
@@ -218,7 +218,7 @@ server {
 # HTTP to HTTPS 리다이렉트
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    server_name windroamer.com www.windroamer.com;
     return 301 https://$server_name$request_uri;
 }
 ```
@@ -345,11 +345,11 @@ sudo awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -nr | he
 ### 성능 테스트
 ```bash
 # 웹사이트 응답 시간 테스트
-curl -w "@curl-format.txt" -o /dev/null -s http://your-domain.com
+curl -w "@curl-format.txt" -o /dev/null -s http://windroamer.com
 
 # 동시 연결 테스트 (Apache Bench)
 sudo apt install apache2-utils
-ab -n 1000 -c 10 http://your-domain.com/
+ab -n 1000 -c 10 http://windroamer.com/
 ```
 
 ## 📞 지원 및 문의

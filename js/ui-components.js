@@ -640,11 +640,34 @@ class LadderRenderer {
             lineWidth: 3,
             verticalLineColor: '#333',
             horizontalBarColor: '#666',
-            highlightColor: '#ff4757',
             animationSpeed: 50, // milliseconds between segments
             segmentLength: 20,
-            padding: 40
+            padding: 10
         };
+        
+        // Color palette for different paths
+        this.pathColors = [
+            '#ff4757', // Red
+            '#2f3542', // Dark blue  
+            '#ff6b00', // Orange
+            '#5f27cd', // Purple
+            '#00d2d3', // Cyan
+            '#ff9ff3', // Pink
+            '#54a0ff', // Blue
+            '#5f27cd', // Purple variant
+            '#ff3838', // Red variant
+            '#1dd1a1', // Green
+            '#feca57', // Yellow
+            '#48dbfb', // Light blue
+            '#ff6b6b', // Light red
+            '#ee5a24', // Dark orange
+            '#0abde3', // Teal
+            '#c44569', // Dark pink
+            '#40739e', // Steel blue
+            '#487eb0', // Medium blue
+            '#8c7ae6', // Light purple
+            '#00a8ff'  // Sky blue
+        ];
         
         console.log('LadderRenderer initialized');
     }
@@ -654,6 +677,10 @@ class LadderRenderer {
         
         this.clearCanvas();
         this.ladderStructure = ladderStructure;
+        
+        // Optimize canvas height for screen-fit display
+        this.optimizeCanvasHeight();
+        
         this.calculateDimensions();
         
         // Add cute loading state to canvas
@@ -667,6 +694,25 @@ class LadderRenderer {
                 this.drawComplete();
             }
         }, 500);
+    }
+    
+    optimizeCanvasHeight() {
+        if (!this.canvas || !this.ladderStructure) return;
+        
+        const participantCount = this.ladderStructure.verticalLines;
+        const optimalHeight = this.calculateOptimalHeight(participantCount);
+        
+        // Update canvas height
+        this.canvas.height = optimalHeight;
+        
+        // Also update CSS height to maintain aspect ratio
+        this.canvas.style.height = `${optimalHeight}px`;
+        
+        console.log('Canvas height optimized:', {
+            participantCount,
+            optimalHeight,
+            screenHeight: window.innerHeight
+        });
     }
 
     showCanvasLoading() {
@@ -691,6 +737,19 @@ class LadderRenderer {
         this.canvas.classList.remove('loading');
     }
 
+    calculateOptimalHeight(participantCount) {
+        // 화면 높이에 맞춰 최적의 사다리 높이 계산
+        const screenHeight = window.innerHeight;
+        const headerHeight = document.querySelector('.header')?.offsetHeight || 60;
+        const availableHeight = screenHeight - headerHeight - 100; // 여유 공간 100px
+        
+        // 참가자 수에 따라 최소 높이 계산
+        const minHeight = Math.max(300, participantCount * 25);
+        const maxHeight = Math.min(600, availableHeight);
+        
+        return Math.max(minHeight, Math.min(maxHeight, availableHeight));
+    }
+
     calculateDimensions() {
         if (!this.ladderStructure) return;
         
@@ -698,9 +757,9 @@ class LadderRenderer {
         const canvasWidth = this.canvas.width;
         const canvasHeight = this.canvas.height;
         
-        // Calculate spacing
+        // Calculate spacing with optimized dimensions
         this.slotWidth = (canvasWidth - this.config.padding * 2) / (verticalLines - 1);
-        this.levelHeight = Math.max(30, (canvasHeight - this.config.padding * 2) / (horizontalBars.length + 2));
+        this.levelHeight = Math.max(20, (canvasHeight - this.config.padding * 2) / (horizontalBars.length + 2));
         
         // Calculate positions
         this.startX = this.config.padding;
@@ -711,7 +770,8 @@ class LadderRenderer {
             slotWidth: this.slotWidth,
             levelHeight: this.levelHeight,
             startX: this.startX,
-            startY: this.startY
+            startY: this.startY,
+            participantCount: verticalLines
         });
     }
 
@@ -965,6 +1025,10 @@ class LadderRenderer {
         this.ctx.stroke();
     }
 
+    getPathColor(pathIndex) {
+        return this.pathColors[pathIndex % this.pathColors.length];
+    }
+
     highlightPath(path, options = {}) {
         if (!this.ctx || !path || !path.segments) return;
         
@@ -972,8 +1036,14 @@ class LadderRenderer {
             animated = true,
             showResult = false,
             onComplete = null,
-            clearPrevious = false
+            clearPrevious = false,
+            pathIndex = 0,
+            color = null
         } = options;
+        
+        // Assign color to path
+        const pathColor = color || this.getPathColor(pathIndex);
+        path.color = pathColor;
         
         // Clear previous highlights if requested
         if (clearPrevious) {
@@ -985,15 +1055,15 @@ class LadderRenderer {
         
         // Animate path highlighting
         if (animated) {
-            this.animatePathHighlight(path, { showResult, onComplete });
+            this.animatePathHighlight(path, { showResult, onComplete, color: pathColor });
         } else {
-            this.drawPathHighlight(path);
+            this.drawPathHighlight(path, pathColor);
             if (onComplete) onComplete();
         }
     }
 
     animatePathHighlight(path, options = {}) {
-        const { showResult = false, onComplete = null } = options;
+        const { showResult = false, onComplete = null, color = null } = options;
         const segments = this.convertPathToCanvasSegments(path);
         let currentIndex = 0;
         
@@ -1005,7 +1075,7 @@ class LadderRenderer {
             }
             
             const segment = segments[currentIndex];
-            this.drawHighlightSegment(segment, currentIndex === segments.length - 1);
+            this.drawHighlightSegment(segment, color || path.color, currentIndex === segments.length - 1);
             
             currentIndex++;
             setTimeout(highlightNextSegment, this.config.animationSpeed);
@@ -1014,10 +1084,11 @@ class LadderRenderer {
         highlightNextSegment();
     }
 
-    drawPathHighlight(path) {
+    drawPathHighlight(path, color = null) {
         const segments = this.convertPathToCanvasSegments(path);
+        const pathColor = color || path.color || this.pathColors[0];
         segments.forEach(segment => {
-            this.drawHighlightSegment(segment);
+            this.drawHighlightSegment(segment, pathColor);
         });
     }
 
@@ -1055,17 +1126,17 @@ class LadderRenderer {
         return canvasSegments;
     }
 
-    drawHighlightSegment(segment) {
+    drawHighlightSegment(segment, color = '#ff4757', isLast = false) {
         if (!this.ctx) return;
         
         this.ctx.beginPath();
-        this.ctx.strokeStyle = this.config.highlightColor;
+        this.ctx.strokeStyle = color;
         this.ctx.lineWidth = this.config.lineWidth + 2;
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
         // Add glow effect
-        this.ctx.shadowColor = this.config.highlightColor;
+        this.ctx.shadowColor = color;
         this.ctx.shadowBlur = 10;
         
         this.ctx.moveTo(segment.x1, segment.y1);
@@ -1074,6 +1145,33 @@ class LadderRenderer {
         
         // Reset shadow
         this.ctx.shadowBlur = 0;
+        
+        // Add endpoint highlight for final segment
+        if (isLast) {
+            this.addEndpointHighlight(segment.x2, segment.y2, color);
+        }
+    }
+    
+    addEndpointHighlight(x, y, color) {
+        if (!this.ctx) return;
+        
+        this.ctx.save();
+        this.ctx.fillStyle = color;
+        this.ctx.shadowColor = color;
+        this.ctx.shadowBlur = 8;
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 6, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Add white center
+        this.ctx.shadowBlur = 0;
+        this.ctx.fillStyle = 'white';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.restore();
     }
 
     revealAllPaths(paths, options = {}) {
@@ -1088,17 +1186,21 @@ class LadderRenderer {
         // Clear previous highlights
         this.clearHighlights();
         
-        // Add all paths to highlighted paths
+        // Add all paths to highlighted paths with colors
         this.highlightedPaths = [...paths];
         
         let completedPaths = 0;
         const totalPaths = paths.length;
         
-        // Animate all paths with staggered timing
+        // Animate all paths with staggered timing and different colors
         paths.forEach((path, index) => {
+            const pathColor = this.getPathColor(index);
+            path.color = pathColor;
+            
             setTimeout(() => {
                 this.animatePathHighlight(path, {
                     showResult: showResults,
+                    color: pathColor,
                     onComplete: () => {
                         completedPaths++;
                         if (completedPaths === totalPaths && onComplete) {
@@ -1199,7 +1301,327 @@ const UIUtils = {
     }
 };
 
+class ResultsTable {
+    constructor(container) {
+        this.container = container;
+        this.tableElement = null;
+        this.results = [];
+        this.isVisible = false;
+        
+        this.init();
+        console.log('ResultsTable component initialized');
+    }
+
+    init() {
+        this.createTableStructure();
+        this.hide(); // Initially hidden
+    }
+
+    createTableStructure() {
+        // Create table container
+        const tableContainer = document.createElement('div');
+        tableContainer.className = 'results-table-container';
+        tableContainer.innerHTML = `
+            <div class="results-header">
+                <h3 class="results-title">
+                    <span class="results-icon">🎯</span>
+                    사다리타기 결과
+                </h3>
+                <div class="results-summary">
+                    <span class="total-results">0개</span> 연결 완료
+                </div>
+            </div>
+            <div class="results-table-wrapper">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th class="participant-col">참가자</th>
+                            <th class="arrow-col"></th>
+                            <th class="result-col">결과</th>
+                        </tr>
+                    </thead>
+                    <tbody class="results-body">
+                    </tbody>
+                </table>
+            </div>
+            <div class="results-footer">
+                <div class="results-actions">
+                    <button class="btn btn-secondary results-clear-btn">
+                        <span class="btn-icon">🗑️</span>
+                        결과 지우기
+                    </button>
+                    <button class="btn btn-info results-export-btn">
+                        <span class="btn-icon">📋</span>
+                        결과 복사
+                    </button>
+                </div>
+            </div>
+        `;
+
+        this.container.appendChild(tableContainer);
+        
+        // Store references
+        this.tableElement = tableContainer;
+        this.tableBody = tableContainer.querySelector('.results-body');
+        this.totalResultsSpan = tableContainer.querySelector('.total-results');
+        this.clearBtn = tableContainer.querySelector('.results-clear-btn');
+        this.exportBtn = tableContainer.querySelector('.results-export-btn');
+        
+        // Setup event listeners
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        if (this.clearBtn) {
+            this.clearBtn.addEventListener('click', () => {
+                this.clearResults();
+            });
+        }
+
+        if (this.exportBtn) {
+            this.exportBtn.addEventListener('click', () => {
+                this.exportResults();
+            });
+        }
+    }
+
+    displayResults(connections, options = {}) {
+        const {
+            topSlots = [],
+            bottomSlots = [],
+            animated = true,
+            colors = null
+        } = options;
+
+        // Store results
+        this.results = connections.map((connection, index) => ({
+            participant: topSlots[index] || `참가자 ${index + 1}`,
+            result: bottomSlots[connection] || `결과 ${connection + 1}`,
+            color: colors ? colors[index] : null,
+            index: index
+        }));
+
+        // Clear existing table
+        this.clearTable();
+
+        // Update summary
+        this.updateSummary();
+
+        // Add results with animation
+        if (animated) {
+            this.animateResults();
+        } else {
+            this.addAllResults();
+        }
+
+        // Show table
+        this.show();
+    }
+
+    animateResults() {
+        let delay = 0;
+        const staggerDelay = 150;
+
+        this.results.forEach((result, index) => {
+            setTimeout(() => {
+                this.addResultRow(result, index, true);
+            }, delay);
+            delay += staggerDelay;
+        });
+    }
+
+    addAllResults() {
+        this.results.forEach((result, index) => {
+            this.addResultRow(result, index, false);
+        });
+    }
+
+    addResultRow(result, index, animated = false) {
+        const row = document.createElement('tr');
+        row.className = 'result-row';
+        
+        if (animated) {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+        }
+
+        // Apply color styling if available
+        const colorClass = result.color ? `path-color-${index % 10}` : '';
+        if (colorClass) {
+            row.classList.add(colorClass);
+        }
+
+        row.innerHTML = `
+            <td class="participant-cell" data-label="참가자">
+                <div class="cell-content">
+                    <span class="participant-indicator ${colorClass}"></span>
+                    <span class="participant-name">${this.escapeHtml(result.participant)}</span>
+                </div>
+            </td>
+            <td class="arrow-cell">
+                <div class="connection-arrow ${colorClass}">➡️</div>
+            </td>
+            <td class="result-cell" data-label="결과">
+                <div class="cell-content">
+                    <span class="result-indicator ${colorClass}"></span>
+                    <span class="result-name">${this.escapeHtml(result.result)}</span>
+                </div>
+            </td>
+        `;
+
+        this.tableBody.appendChild(row);
+
+        // Animate in if requested
+        if (animated) {
+            setTimeout(() => {
+                row.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, 50);
+        }
+    }
+
+    updateSummary() {
+        if (this.totalResultsSpan) {
+            this.totalResultsSpan.textContent = `${this.results.length}개`;
+        }
+    }
+
+    clearTable() {
+        if (this.tableBody) {
+            this.tableBody.innerHTML = '';
+        }
+    }
+
+    clearResults() {
+        this.results = [];
+        this.clearTable();
+        this.updateSummary();
+        this.hide();
+        
+        // Dispatch clear event
+        this.dispatchEvent('resultsCleared');
+    }
+
+    exportResults() {
+        if (this.results.length === 0) {
+            this.showMessage('복사할 결과가 없습니다.', 'warning');
+            return;
+        }
+
+        const resultText = this.results.map(result => 
+            `${result.participant} ➡️ ${result.result}`
+        ).join('\n');
+        
+        const fullText = `사다리타기 결과:\n\n${resultText}`;
+
+        // Copy to clipboard
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(fullText).then(() => {
+                this.showMessage('결과가 클립보드에 복사되었습니다!', 'success');
+            }).catch(() => {
+                this.fallbackCopyToClipboard(fullText);
+            });
+        } else {
+            this.fallbackCopyToClipboard(fullText);
+        }
+    }
+
+    fallbackCopyToClipboard(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            this.showMessage('결과가 클립보드에 복사되었습니다!', 'success');
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            this.showMessage('복사 실패. 수동으로 복사해주세요.', 'error');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+
+    show() {
+        if (this.tableElement) {
+            this.tableElement.classList.add('visible');
+            this.isVisible = true;
+            
+            // Smooth scroll to table
+            setTimeout(() => {
+                this.tableElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
+            }, 300);
+        }
+    }
+
+    hide() {
+        if (this.tableElement) {
+            this.tableElement.classList.remove('visible');
+            this.isVisible = false;
+        }
+    }
+
+    updateTable(connections, options = {}) {
+        this.displayResults(connections, options);
+    }
+
+    escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    showMessage(message, type = 'info') {
+        // Show temporary message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `results-message results-message-${type}`;
+        messageDiv.textContent = message;
+        
+        if (this.tableElement) {
+            this.tableElement.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'fadeOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    }
+
+    dispatchEvent(eventName, data = null) {
+        const event = new CustomEvent(eventName, { 
+            detail: data,
+            bubbles: true 
+        });
+        this.container.dispatchEvent(event);
+    }
+
+    getResults() {
+        return this.results;
+    }
+
+    isEmpty() {
+        return this.results.length === 0;
+    }
+}
+
 // Export for use in other files
 window.SlotInput = SlotInput;
 window.LadderRenderer = LadderRenderer;
+window.ResultsTable = ResultsTable;
 window.UIUtils = UIUtils;

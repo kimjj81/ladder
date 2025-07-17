@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "env": {},
+      "disabled": true,
+      "autoApprove": []
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "mcp-server-chart": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@antvis/mcp-server-chart",
+        "--key",
+        "924d4df2-842c-4b14-a15c-dba6ca8c58d4",
+        "--profile",
+        "quaint-platypus-YzO95e"
+      ]
+    }
+  }
+}

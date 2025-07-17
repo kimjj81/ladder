@@ -11,6 +11,7 @@ class LadderGame {
         this.storageManager = new StorageManager(); // Storage manager for save/load
         this.errorHandler = window.ErrorHandler ? new ErrorHandler() : null; // Error handler
         this.ladderRenderer = null; // Ladder renderer instance
+        this.compactLadderComponent = null; // Compact ladder component instance
         
         this.init();
     }
@@ -1566,11 +1567,8 @@ class LadderGame {
             slotsDiv.style.display = 'none';
         }
         
-        // Create or show ladder display container
-        this.createLadderDisplay();
-        
-        // Initialize ladder renderer
-        this.initializeLadderRenderer();
+        // Create compact ladder display instead of traditional ladder
+        this.createCompactLadderDisplay();
     }
 
     createLadderDisplay() {
@@ -1633,6 +1631,85 @@ class LadderGame {
         
         // Setup event listeners for ladder display
         this.setupLadderEventListeners();
+    }
+
+    createCompactLadderDisplay() {
+        // Create or get ladder display container
+        let ladderContainer = document.getElementById('ladderDisplay');
+        
+        if (!ladderContainer) {
+            ladderContainer = document.createElement('div');
+            ladderContainer.id = 'ladderDisplay';
+            ladderContainer.className = 'ladder-display compact-display';
+            
+            const gameContainer = document.querySelector('.game-container');
+            if (gameContainer) {
+                gameContainer.appendChild(ladderContainer);
+            }
+        }
+        
+        // Initialize compact ladder component
+        if (!this.compactLadderComponent) {
+            this.compactLadderComponent = new window.CompactLadderComponent(ladderContainer);
+        }
+        
+        // Setup the game data in the compact component
+        this.compactLadderComponent.setupGame(
+            this.slotCount,
+            this.topSlots,
+            this.bottomSlots,
+            this.connections
+        );
+        
+        // Override the component's reveal methods to use our game logic
+        this.setupCompactComponentEventHandlers();
+        
+        ladderContainer.style.display = 'block';
+        console.log('Compact ladder display created');
+    }
+
+    setupCompactComponentEventHandlers() {
+        if (!this.compactLadderComponent) return;
+        
+        // Override the revealConnection method to use our reveal logic
+        const originalRevealConnection = this.compactLadderComponent.revealConnection.bind(this.compactLadderComponent);
+        this.compactLadderComponent.revealConnection = (topIndex) => {
+            // Call our reveal path logic first
+            this.revealPathCompact(topIndex);
+            // Then call the component's reveal logic
+            originalRevealConnection(topIndex);
+        };
+        
+        // Override the reset button to use our reset logic
+        const resetBtn = this.compactLadderComponent.resetBtn;
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.resetLadder();
+            });
+        }
+    }
+
+    revealPathCompact(topIndex) {
+        // Similar to revealPath but without popup
+        if (!this.ladderStructure || !this.ladderStructure.paths) return;
+        
+        const path = this.ladderStructure.paths[topIndex];
+        if (!path) return;
+        
+        // Prevent multiple reveals of the same path
+        if (this.revealedPaths && this.revealedPaths.has(topIndex)) {
+            return;
+        }
+        
+        // Initialize revealed paths set if not exists
+        if (!this.revealedPaths) {
+            this.revealedPaths = new Set();
+        }
+        
+        // Mark as revealed
+        this.revealedPaths.add(topIndex);
+        
+        console.log(`Path revealed in compact mode: ${this.topSlots[topIndex]} → ${this.bottomSlots[path.end]}`);
     }
 
     setupLadderEventListeners() {
@@ -2023,15 +2100,18 @@ class LadderGame {
         // Highlight the corresponding bottom slot with revealed state
         this.highlightSlot('bottom', path.end, true, true);
         
-        // Animate path reveal with enhanced effects
-        this.ladderRenderer.highlightPath(path, {
-            animated: true,
-            showResult: true,
-            onComplete: () => {
-                // Show result popup
-                this.showPathResult(topIndex, path.end);
-            }
-        });
+        // Skip popup if using compact component
+        if (!this.compactLadderComponent && this.ladderRenderer) {
+            // Animate path reveal with enhanced effects (only in traditional mode)
+            this.ladderRenderer.highlightPath(path, {
+                animated: true,
+                showResult: true,
+                onComplete: () => {
+                    // Show result popup (only in traditional mode)
+                    this.showPathResult(topIndex, path.end);
+                }
+            });
+        }
         
         // Update reveal all button state
         this.updateRevealAllButton();
@@ -2074,26 +2154,45 @@ class LadderGame {
             revealAllBtn.disabled = true;
         }
         
-        // Reveal all paths with enhanced animation
-        this.ladderRenderer.revealAllPaths(this.ladderStructure.paths, {
-            staggerDelay: 150,
-            showResults: true,
-            onComplete: () => {
-                // Show all results popup
-                this.showAllResults();
-                
-                // Update button state
-                if (revealAllBtn) {
+        // Use compact component for reveal all instead of popup
+        if (this.compactLadderComponent) {
+            this.compactLadderComponent.revealAllConnections();
+            
+            // Update button state immediately for compact mode
+            if (revealAllBtn) {
+                setTimeout(() => {
                     revealAllBtn.classList.remove('revealing');
                     revealAllBtn.classList.add('completed');
                     revealAllBtn.innerHTML = '<span class="btn-icon">✅</span> 모든 결과 표시됨';
                     revealAllBtn.disabled = false;
-                }
-                
-                // Update game state
-                this.gameState = 'complete';
+                }, this.slotCount * 100 + 500); // Wait for animation to complete
             }
-        });
+            
+            // Update game state
+            this.gameState = 'complete';
+            console.log('All paths revealed in compact mode');
+        } else {
+            // Fallback to original method if compact component not available
+            this.ladderRenderer.revealAllPaths(this.ladderStructure.paths, {
+                staggerDelay: 150,
+                showResults: true,
+                onComplete: () => {
+                    // Show all results popup (fallback)
+                    this.showAllResults();
+                    
+                    // Update button state
+                    if (revealAllBtn) {
+                        revealAllBtn.classList.remove('revealing');
+                        revealAllBtn.classList.add('completed');
+                        revealAllBtn.innerHTML = '<span class="btn-icon">✅</span> 모든 결과 표시됨';
+                        revealAllBtn.disabled = false;
+                    }
+                    
+                    // Update game state
+                    this.gameState = 'complete';
+                }
+            });
+        }
         
         console.log('All paths revealed');
     }

@@ -26,6 +26,7 @@ const CSS_FILES = [
 // JS files to minify and combine
 const JS_FILES = [
     'js/error-handler.js',
+    'js/compact-ladder-component.js',
     'js/storage.js',
     'js/ui-components.js',
     'js/app.js',
