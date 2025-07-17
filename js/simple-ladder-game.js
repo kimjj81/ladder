@@ -1,4 +1,4 @@
-// Simple Ladder Game - Grid Layout Version
+'''// Simple Ladder Game - Grid Layout Version
 class SimpleLadderGame {
     constructor(container) {
         this.container = container;
@@ -21,6 +21,7 @@ class SimpleLadderGame {
     
     init() {
         this.createGameStructure();
+        this.onInitialReset = null; // Callback for full reset
         console.log('SimpleLadderGame (Grid Version) initialized');
     }
     
@@ -32,6 +33,7 @@ class SimpleLadderGame {
                     <div class="game-controls">
                         <button class="btn btn-sm btn-primary reveal-all-btn" disabled>👁️ 모든 결과 보기</button>
                         <button class="btn btn-sm btn-secondary reset-btn" disabled>🔄 새로 만들기</button>
+                        <button class="btn btn-sm btn-danger initial-reset-btn">처음으로</button>
                     </div>
                 </div>
                 
@@ -60,6 +62,7 @@ class SimpleLadderGame {
         this.resultsCount = this.container.querySelector('.results-count');
         this.revealAllBtn = this.container.querySelector('.reveal-all-btn');
         this.resetBtn = this.container.querySelector('.reset-btn');
+        this.initialResetBtn = this.container.querySelector('.initial-reset-btn');
         
         this.setupEventListeners();
     }
@@ -67,6 +70,11 @@ class SimpleLadderGame {
     setupEventListeners() {
         this.revealAllBtn.addEventListener('click', () => this.revealAllConnections());
         this.resetBtn.addEventListener('click', () => this.resetGame());
+        this.initialResetBtn.addEventListener('click', () => {
+            if (this.onInitialReset) {
+                this.onInitialReset();
+            }
+        });
     }
     
     setupGame(slotCount, topSlots, bottomSlots, connections) {
@@ -89,26 +97,22 @@ class SimpleLadderGame {
         this.gameArea.innerHTML = '';
         this.gameArea.style.setProperty('--slot-count', this.slotCount);
 
-        // Add headers
         this.gameArea.innerHTML += `
             <div class="area-label" style="grid-row: 1; grid-column: 1;">참가자</div>
             <div class="area-label" style="grid-row: 1; grid-column: 3;">결과</div>
         `;
 
-        // Create and place participants and results
         for (let i = 0; i < this.slotCount; i++) {
-            const row = i + 2; // +2 to account for header row
-            // Participant
+            const row = i + 2;
             const pDiv = document.createElement('div');
             pDiv.className = 'participant-item';
             pDiv.dataset.index = i;
             pDiv.style.gridRow = row;
             pDiv.style.gridColumn = 1;
-            pDiv.innerHTML = `<div class="participant-box"><span class="participant-text">${this.topSlots[i]}</span></div>`;
+            pDiv.innerHTML = `<div class="participant-box"><span class="participant-number">${i + 1}.</span><span class="participant-text">${this.topSlots[i]}</span></div>`;
             pDiv.addEventListener('click', () => this.revealConnection(i));
             this.gameArea.appendChild(pDiv);
 
-            // Result
             const rDiv = document.createElement('div');
             rDiv.className = 'result-item';
             rDiv.dataset.index = i;
@@ -118,7 +122,6 @@ class SimpleLadderGame {
             this.gameArea.appendChild(rDiv);
         }
 
-        // Create and place the canvas
         const canvasContainer = document.createElement('div');
         canvasContainer.className = 'ladder-area';
         canvasContainer.style.gridRow = `2 / span ${this.slotCount}`;
@@ -129,7 +132,6 @@ class SimpleLadderGame {
         this.gameArea.appendChild(canvasContainer);
         this.ctx = this.canvas.getContext('2d');
 
-        // Use a timeout to ensure the grid layout is calculated by the browser
         requestAnimationFrame(() => {
             this.setupCanvas();
             this.drawLadder();
@@ -205,20 +207,27 @@ class SimpleLadderGame {
                 }
             }
         }
-        console.log('Grid-based ladder drawn');
     }
     
     revealConnection(topIndex) {
-        if (this.revealedConnections.has(topIndex)) return;
-        
+        const alreadyRevealed = this.revealedConnections.has(topIndex);
         const bottomIndex = this.connections[topIndex];
         const color = this.colors[topIndex % this.colors.length];
-        
+
+        this.drawLadder();
+        const pathsToDraw = new Set(this.revealedConnections);
+        pathsToDraw.add(topIndex);
+        pathsToDraw.forEach(idx => {
+            this.drawConnectionPath(idx, this.colors[idx % this.colors.length]);
+        });
+
+        if (alreadyRevealed) {
+            return;
+        }
+
         this.revealedConnections.add(topIndex);
-        this.drawConnectionPath(topIndex, color);
-        
         this.highlightParticipant(topIndex, color);
-        this.highlightResult(bottomIndex, color);
+        this.highlightResult(bottomIndex, color, topIndex);
         this.updateResultsTable();
     }
     
@@ -277,11 +286,20 @@ class SimpleLadderGame {
         }
     }
     
-    highlightResult(index, color) {
+    highlightResult(index, color, topIndex) {
         const r = this.gameArea.querySelector(`.result-item[data-index="${index}"]`);
         if (r) {
             r.classList.add('revealed');
             r.style.setProperty('--connection-color', color);
+            
+            const resultBox = r.querySelector('.result-box');
+            if (resultBox && !resultBox.querySelector('.participant-badge')) {
+                const badge = document.createElement('span');
+                badge.className = 'participant-badge';
+                badge.textContent = topIndex + 1;
+                badge.style.backgroundColor = color;
+                resultBox.prepend(badge);
+            }
         }
     }
     
@@ -366,6 +384,16 @@ const simpleLadderStyles = `
     padding: 12px; background-color: #fff; border-radius: 8px;
     border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+}
+.participant-number {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #888;
 }
 .participant-item.revealed .participant-box {
     border-left: 5px solid var(--connection-color, #ccc);
@@ -374,6 +402,23 @@ const simpleLadderStyles = `
 .result-item.revealed .result-box {
     border-right: 5px solid var(--connection-color, #ccc);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-weight: bold;
+}
+.participant-badge {
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--connection-color);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .ladder-area {
     position: relative;
@@ -402,3 +447,4 @@ const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = simpleLadderStyles;
 document.head.appendChild(styleSheet);
+''

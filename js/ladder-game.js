@@ -1750,7 +1750,7 @@ class LadderGame {
 
     setupSimpleLadderEventHandlers() {
         if (!this.simpleLadderGame) return;
-        
+
         // Reset 버튼에 추가 로직 연결
         const resetBtn = this.simpleLadderGame.resetBtn;
         if (resetBtn) {
@@ -1766,6 +1766,11 @@ class LadderGame {
                 );
             });
         }
+
+        // 초기화 버튼 콜백 설정
+        this.simpleLadderGame.onInitialReset = () => {
+            this.backToSetup(true); // 완전 초기화를 위해 true 전달
+        };
     }
 
     setupLadderEventListeners() {
@@ -1799,6 +1804,30 @@ class LadderGame {
             backToSetupBtn.addEventListener('click', () => {
                 this.backToSetup();
             });
+        }
+    }
+
+    backToSetup(fullReset = false) {
+        const ladderDisplay = document.getElementById('ladderDisplay');
+        const slotsDiv = document.getElementById('slotsSetup');
+
+        if (ladderDisplay) {
+            ladderDisplay.style.display = 'none';
+            if (fullReset) {
+                ladderDisplay.innerHTML = ''; // 완전 초기화 시 내용도 삭제
+                this.simpleLadderGame = null; // 컴포넌트 참조도 제거
+            }
+        }
+
+        if (slotsDiv) {
+            slotsDiv.style.display = 'block';
+        }
+
+        this.gameState = 'ready';
+        this.updateGameState();
+
+        if (fullReset) {
+            this.resetSetup();
         }
     }
 
