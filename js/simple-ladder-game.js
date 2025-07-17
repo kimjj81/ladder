@@ -316,9 +316,9 @@ class SimpleLadderGame {
             const color = this.colors[topIndex % this.colors.length];
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><span class="result-indicator" style="background-color: ${color}"></span>${topIndex + 1}. ${this.topSlots[topIndex]}</td>
+                <td><span class="result-indicator" style="background-color: ${color}"></span>${topIndex + 1}. ${this.topSlots[topIndex] || '참가자 ' + (topIndex + 1)}</td>
                 <td>→</td>
-                <td><span class="result-indicator" style="background-color: ${color}"></span>${this.bottomSlots[bottomIndex]}</td>
+                <td><span class="result-indicator" style="background-color: ${color}"></span>${this.bottomSlots[bottomIndex] || '결과 ' + (bottomIndex + 1)}</td>
             `;
             this.resultsTbody.appendChild(row);
         });

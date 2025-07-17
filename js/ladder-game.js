@@ -1415,7 +1415,7 @@ class LadderGame {
         this.ladderStructure = this.generateLadderStructure();
         
         // Determine connections by tracing paths on the generated structure
-        this.connections = this.ladderStructure.paths.map(p => p.end);
+        this.connections = this.ladderStructure.paths.map(p => p.end_y_index);
 
         console.log('Ladder generated with paths determining connections:', {
             connections: this.connections,
