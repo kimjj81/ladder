@@ -1331,19 +1331,17 @@ class ResultsTable {
                     <span class="total-results">0개</span> 연결 완료
                 </div>
             </div>
-            <div class="results-table-wrapper">
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th class="participant-col">참가자</th>
-                            <th class="arrow-col"></th>
-                            <th class="result-col">결과</th>
-                        </tr>
-                    </thead>
-                    <tbody class="results-body">
-                    </tbody>
-                </table>
-            </div>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th class="participant-col">참가자</th>
+                        <th class="arrow-col"></th>
+                        <th class="result-col">결과</th>
+                    </tr>
+                </thead>
+                <tbody class="results-body">
+                </tbody>
+            </table>
             <div class="results-footer">
                 <div class="results-actions">
                     <button class="btn btn-secondary results-clear-btn">

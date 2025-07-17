@@ -2011,11 +2011,6 @@
     color: var(--cute-purple);
 }
 
-.results-table-wrapper {
-    overflow-x: auto;
-    border-radius: var(--radius-medium);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-}
 
 .results-table {
     width: 100%;
@@ -2232,10 +2227,6 @@
         padding: 0.75rem;
     }
     
-    .results-table-wrapper {
-        margin: 0 -0.75rem;
-        border-radius: 0;
-    }
     
     /* Stack table cells on very small screens */
     .results-table,

@@ -87,20 +87,18 @@ class CompactLadderComponent {
                     </div>
                 </div>
                 <div class="inline-results-table">
-                    <div class="results-table-wrapper">
-                        <table class="compact-results-table">
-                            <thead>
-                                <tr>
-                                    <th class="participant-header">참가자</th>
-                                    <th class="connection-header">연결</th>
-                                    <th class="result-header">결과</th>
-                                </tr>
-                            </thead>
-                            <tbody class="results-tbody">
+                    <table class="compact-results-table">
+                        <thead>
+                            <tr>
+                                <th class="participant-header">참가자</th>
+                                <th class="connection-header">연결</th>
+                                <th class="result-header">결과</th>
+                            </tr>
+                        </thead>
+                        <tbody class="results-tbody">
                                 <!-- 결과 행들이 여기에 동적으로 추가됩니다 -->
-                            </tbody>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         `;

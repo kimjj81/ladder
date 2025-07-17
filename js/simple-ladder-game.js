@@ -46,12 +46,10 @@ class SimpleLadderGame {
                         <h4>📋 연결 결과</h4>
                         <span class="results-count">(0개 완료)</span>
                     </div>
-                    <div class="results-table-wrapper">
-                        <table class="results-table">
-                            <thead><tr><th>참가자</th><th>→</th><th>결과</th></tr></thead>
-                            <tbody class="results-tbody"></tbody>
-                        </table>
-                    </div>
+                    <table class="results-table">
+                        <thead><tr><th>참가자</th><th>→</th><th>결과</th></tr></thead>
+                        <tbody class="results-tbody"></tbody>
+                    </table>
                 </div>
             </div>
         `;
@@ -435,7 +433,6 @@ const simpleLadderStyles = `
 .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .table-header h4 { margin: 0; font-size: 1.2rem; color: #333; }
 .results-count { font-size: 0.9rem; color: #777; }
-.results-table-wrapper { max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; }
 .results-table { width: 100%; border-collapse: collapse; text-align: center; }
 .results-table th, .results-table td { padding: 12px; border-bottom: 1px solid #eee; }
 .results-table th { background-color: #f8f9fa; font-weight: 600; color: #444; }

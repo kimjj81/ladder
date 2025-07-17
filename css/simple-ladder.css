@@ -207,9 +207,6 @@
     font-size: 0.9rem;
 }
 
-.results-table-wrapper {
-    overflow-x: auto;
-}
 
 .results-table {
     width: 100%;
