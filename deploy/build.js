@@ -115,7 +115,8 @@ async function minifyJS() {
             },
             format: {
                 comments: false
-            }
+            },
+            ecma: 5  // Convert to ES5 for better browser compatibility
         });
         
         if (result.error) {
