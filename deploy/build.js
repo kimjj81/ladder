@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { minify } = require('terser');
 const CleanCSS = require('clean-css');
+const babel = require('@babel/core');
 
 // Build configuration
 const BUILD_DIR = 'dist';
@@ -96,7 +97,7 @@ async function minifyCSS() {
 }
 
 async function minifyJS() {
-    console.log('📦 Minifying JavaScript files...');
+    console.log('📦 Processing JavaScript files with Babel and minification...');
     
     const jsContent = JS_FILES.map(file => {
         console.log(`  - Processing ${file}`);
@@ -104,11 +105,38 @@ async function minifyJS() {
     }).join('\n\n');
     
     try {
-        const result = await minify(jsContent, {
+        // First, transform ES6+ to ES5 using Babel
+        console.log('  - Transforming ES6+ to ES5 with Babel...');
+        const babelResult = await babel.transformAsync(jsContent, {
+            presets: [
+                ['@babel/preset-env', {
+                    targets: {
+                        ie: '11',
+                        chrome: '60',
+                        firefox: '55',
+                        safari: '10.1'
+                    },
+                    useBuiltIns: false,
+                    modules: false
+                }]
+            ],
+            compact: false
+        });
+        
+        if (!babelResult || !babelResult.code) {
+            throw new Error('Babel transformation failed');
+        }
+        
+        console.log('  ✅ ES6+ to ES5 transformation completed');
+        
+        // Then minify the ES5 code
+        console.log('  - Minifying transformed code...');
+        const result = await minify(babelResult.code, {
             compress: {
                 drop_console: true,
                 drop_debugger: true,
-                pure_funcs: ['console.log', 'console.info', 'console.debug']
+                pure_funcs: ['console.log', 'console.info', 'console.debug'],
+                ecma: 5
             },
             mangle: {
                 reserved: ['LadderGame', 'StorageManager', 'App', 'UIComponents', 'SavedGamesManager']
@@ -116,7 +144,7 @@ async function minifyJS() {
             format: {
                 comments: false
             },
-            ecma: 5  // Convert to ES5 for better browser compatibility
+            ecma: 5  // Ensure ES5 output
         });
         
         if (result.error) {
@@ -127,14 +155,21 @@ async function minifyJS() {
         writeFile(path.join(BUILD_DIR, 'js', 'app.min.js'), result.code);
         
         const originalSize = jsContent.length;
+        const transformedSize = babelResult.code.length;
         const minifiedSize = result.code.length;
-        const savings = ((originalSize - minifiedSize) / originalSize * 100).toFixed(1);
+        const babelSavings = ((originalSize - transformedSize) / originalSize * 100).toFixed(1);
+        const minifySavings = ((transformedSize - minifiedSize) / transformedSize * 100).toFixed(1);
+        const totalSavings = ((originalSize - minifiedSize) / originalSize * 100).toFixed(1);
         
-        console.log(`  ✅ JavaScript minified: ${originalSize} → ${minifiedSize} bytes (${savings}% reduction)`);
+        console.log(`  ✅ JavaScript processed:`);
+        console.log(`     Original: ${originalSize} bytes`);
+        console.log(`     After Babel: ${transformedSize} bytes (${babelSavings}% change)`);
+        console.log(`     After minify: ${minifiedSize} bytes (${minifySavings}% reduction)`);
+        console.log(`     Total reduction: ${totalSavings}%`);
         
         return result.code;
     } catch (error) {
-        console.error('JavaScript minification failed:', error);
+        console.error('JavaScript processing failed:', error);
         throw error;
     }
 }

@@ -13,14 +13,22 @@
     "serve:dev": "http-server . -p 8080 -c-1",
     "deploy:test": "node deploy/test-deployment.js"
   },
-  "keywords": ["ladder-game", "korean", "web-game", "static"],
+  "keywords": [
+    "ladder-game",
+    "korean",
+    "web-game",
+    "static"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Korean ladder game (사다리타기) - A fun web-based random selection game",
   "devDependencies": {
+    "@babel/cli": "^7.28.0",
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
     "@playwright/test": "^1.54.1",
+    "clean-css": "^5.3.3",
     "http-server": "^14.1.1",
-    "terser": "^5.36.0",
-    "clean-css": "^5.3.3"
+    "terser": "^5.36.0"
   }
 }
