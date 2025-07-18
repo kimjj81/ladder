@@ -802,35 +802,277 @@ class ErrorHandler {
         };
     }
 
-    // Show compatibility warnings on app initialization
+    // Show compatibility warnings unobtrusively
     showCompatibilityWarnings(container) {
         const recommendations = this.getCompatibilityRecommendations();
         const criticalIssues = recommendations.filter(r => r.severity === 'error');
         const warnings = recommendations.filter(r => r.severity === 'warning');
+        const allIssues = [...criticalIssues, ...warnings];
 
-        // Show critical issues immediately
-        criticalIssues.forEach(issue => {
-            this.showErrorMessage(container, {
-                type: issue.feature,
-                title: `${issue.feature} 호환성 문제 ❌`,
-                message: issue.issue,
-                suggestions: issue.solutions,
-                severity: 'error'
-            });
+        // Don't show anything if no issues
+        if (allIssues.length === 0) return;
+
+        // Create small floating compatibility indicator
+        this.createCompatibilityIndicator(container, allIssues);
+    }
+
+    // Create small floating compatibility indicator
+    createCompatibilityIndicator(container, issues) {
+        // Remove existing indicator
+        const existing = document.querySelector('.compatibility-indicator');
+        if (existing) existing.remove();
+
+        const indicator = document.createElement('div');
+        indicator.className = 'compatibility-indicator';
+        indicator.innerHTML = `
+            <div class="compatibility-badge">
+                <span class="compatibility-icon">⚠️</span>
+                <span class="compatibility-count">${issues.length}</span>
+            </div>
+            <div class="compatibility-panel" style="display: none;">
+                <div class="compatibility-header">
+                    <h4>브라우저 호환성</h4>
+                    <button class="compatibility-close">×</button>
+                </div>
+                <div class="compatibility-content">
+                    ${issues.map(issue => `
+                        <div class="compatibility-item ${issue.severity}">
+                            <div class="compatibility-item-header">
+                                <span class="severity-icon">${issue.severity === 'error' ? '❌' : '⚠️'}</span>
+                                <strong>${issue.feature}</strong>
+                            </div>
+                            <p>${issue.issue}</p>
+                            <ul class="compatibility-solutions">
+                                ${issue.solutions.map(solution => `<li>${solution}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                    <div class="compatibility-footer">
+                        <small>이 알림은 브라우저 호환성에 대한 정보입니다. 게임은 정상적으로 작동합니다.</small>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add styles if not already added
+        if (!document.querySelector('#compatibility-styles')) {
+            const styles = document.createElement('style');
+            styles.id = 'compatibility-styles';
+            styles.textContent = `
+                .compatibility-indicator {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 1000;
+                    font-family: system-ui, -apple-system, sans-serif;
+                }
+
+                .compatibility-badge {
+                    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    transition: all 0.3s ease;
+                    user-select: none;
+                }
+
+                .compatibility-badge:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+                }
+
+                .compatibility-icon {
+                    font-size: 14px;
+                }
+
+                .compatibility-count {
+                    background: rgba(255,255,255,0.3);
+                    border-radius: 10px;
+                    padding: 2px 6px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    min-width: 18px;
+                    text-align: center;
+                }
+
+                .compatibility-panel {
+                    position: absolute;
+                    bottom: 100%;
+                    right: 0;
+                    margin-bottom: 10px;
+                    background: white;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+                    width: 320px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                    animation: compatibilitySlideIn 0.3s ease;
+                }
+
+                @keyframes compatibilitySlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(10px) scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+
+                .compatibility-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px;
+                    border-bottom: 1px solid #eee;
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border-radius: 12px 12px 0 0;
+                }
+
+                .compatibility-header h4 {
+                    margin: 0;
+                    font-size: 16px;
+                    color: #333;
+                }
+
+                .compatibility-close {
+                    background: none;
+                    border: none;
+                    font-size: 20px;
+                    cursor: pointer;
+                    color: #666;
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    transition: background 0.2s ease;
+                }
+
+                .compatibility-close:hover {
+                    background: rgba(0,0,0,0.1);
+                }
+
+                .compatibility-content {
+                    padding: 16px;
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+
+                .compatibility-item {
+                    margin-bottom: 16px;
+                    padding: 12px;
+                    border-radius: 8px;
+                    border-left: 4px solid;
+                }
+
+                .compatibility-item.error {
+                    background: #ffeaa7;
+                    border-left-color: #e17055;
+                }
+
+                .compatibility-item.warning {
+                    background: #fff3cd;
+                    border-left-color: #ffc107;
+                }
+
+                .compatibility-item-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 8px;
+                }
+
+                .severity-icon {
+                    font-size: 14px;
+                }
+
+                .compatibility-item p {
+                    margin: 0 0 8px 0;
+                    font-size: 14px;
+                    color: #555;
+                    line-height: 1.4;
+                }
+
+                .compatibility-solutions {
+                    margin: 0;
+                    padding-left: 20px;
+                    font-size: 13px;
+                    color: #666;
+                }
+
+                .compatibility-solutions li {
+                    margin: 4px 0;
+                }
+
+                .compatibility-footer {
+                    border-top: 1px solid #eee;
+                    padding: 12px 0 0 0;
+                    margin-top: 16px;
+                    text-align: center;
+                }
+
+                .compatibility-footer small {
+                    color: #999;
+                    font-size: 12px;
+                    line-height: 1.3;
+                }
+
+                @media (max-width: 768px) {
+                    .compatibility-indicator {
+                        bottom: 80px;
+                        right: 16px;
+                    }
+                    
+                    .compatibility-panel {
+                        width: 280px;
+                        max-height: 300px;
+                    }
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+
+        // Add event listeners
+        const badge = indicator.querySelector('.compatibility-badge');
+        const panel = indicator.querySelector('.compatibility-panel');
+        const closeBtn = indicator.querySelector('.compatibility-close');
+
+        badge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = panel.style.display !== 'none';
+            panel.style.display = isVisible ? 'none' : 'block';
         });
 
-        // Show warnings after a delay
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panel.style.display = 'none';
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!indicator.contains(e.target)) {
+                panel.style.display = 'none';
+            }
+        });
+
+        // Append to container or body
+        const targetContainer = container || document.body;
+        targetContainer.appendChild(indicator);
+
+        // Auto-hide after 10 seconds if not interacted with
         setTimeout(() => {
-            warnings.forEach(issue => {
-                this.showErrorMessage(container, {
-                    type: issue.feature,
-                    title: `${issue.feature} 제한 ⚠️`,
-                    message: issue.issue,
-                    suggestions: issue.solutions,
-                    severity: 'warning'
-                });
-            });
-        }, 2000);
+            if (indicator.parentNode && panel.style.display === 'none') {
+                indicator.style.opacity = '0.7';
+            }
+        }, 10000);
     }
 }
 

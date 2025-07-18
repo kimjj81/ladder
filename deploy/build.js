@@ -105,9 +105,128 @@ async function minifyJS() {
     }).join('\n\n');
     
     try {
+        // Add polyfills at the beginning
+        const polyfillContent = `
+// Core polyfills for older browsers
+if (!Array.prototype.includes) {
+    Array.prototype.includes = function(searchElement) {
+        return this.indexOf(searchElement) !== -1;
+    };
+}
+
+if (!Array.prototype.find) {
+    Array.prototype.find = function(predicate) {
+        for (var i = 0; i < this.length; i++) {
+            if (predicate(this[i], i, this)) return this[i];
+        }
+        return undefined;
+    };
+}
+
+if (!Array.from) {
+    Array.from = function(arrayLike) {
+        var result = [];
+        for (var i = 0; i < arrayLike.length; i++) {
+            result.push(arrayLike[i]);
+        }
+        return result;
+    };
+}
+
+if (!Object.assign) {
+    Object.assign = function(target) {
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            for (var key in source) {
+                if (source.hasOwnProperty(key)) {
+                    target[key] = source[key];
+                }
+            }
+        }
+        return target;
+    };
+}
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+        position = position || 0;
+        return this.substr(position, searchString.length) === searchString;
+    };
+}
+
+// Promise polyfill for IE
+if (typeof Promise === 'undefined') {
+    window.Promise = function(executor) {
+        var self = this;
+        this.state = 'pending';
+        this.value = undefined;
+        this.handlers = [];
+        
+        function resolve(result) {
+            if (self.state === 'pending') {
+                self.state = 'resolved';
+                self.value = result;
+                self.handlers.forEach(handle);
+            }
+        }
+        
+        function reject(error) {
+            if (self.state === 'pending') {
+                self.state = 'rejected';
+                self.value = error;
+                self.handlers.forEach(handle);
+            }
+        }
+        
+        function handle(handler) {
+            if (self.state === 'pending') {
+                self.handlers.push(handler);
+            } else {
+                if (self.state === 'resolved' && typeof handler.onResolved === 'function') {
+                    handler.onResolved(self.value);
+                }
+                if (self.state === 'rejected' && typeof handler.onRejected === 'function') {
+                    handler.onRejected(self.value);
+                }
+            }
+        }
+        
+        this.then = function(onResolved, onRejected) {
+            return new Promise(function(resolve, reject) {
+                handle({
+                    onResolved: function(result) {
+                        try {
+                            resolve(onResolved ? onResolved(result) : result);
+                        } catch (ex) {
+                            reject(ex);
+                        }
+                    },
+                    onRejected: function(error) {
+                        try {
+                            resolve(onRejected ? onRejected(error) : error);
+                        } catch (ex) {
+                            reject(ex);
+                        }
+                    }
+                });
+            });
+        };
+        
+        try {
+            executor(resolve, reject);
+        } catch (ex) {
+            reject(ex);
+        }
+    };
+}
+
+`;
+
+        const fullJsContent = polyfillContent + jsContent;
+        
         // First, transform ES6+ to ES5 using Babel
         console.log('  - Transforming ES6+ to ES5 with Babel...');
-        const babelResult = await babel.transformAsync(jsContent, {
+        const babelResult = await babel.transformAsync(fullJsContent, {
             presets: [
                 ['@babel/preset-env', {
                     targets: {
